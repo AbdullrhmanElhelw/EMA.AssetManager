@@ -1,0 +1,230 @@
+﻿@page "/assets/issue/{AssetId:guid}"
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+@using EMA.AssetManager.Domain.Enums
+@using EMA.AssetManager.Services.Dtos.Assets
+@using EMA.AssetManager.Services.Dtos.Transactions
+@using EMA.AssetManager.Services.Interfaces
+@inject IAssetService AssetService
+@inject ITransactionService TransactionService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>صرف عهدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (_asset == null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-4">
+            <MudAlertTitle>خطأ</MudAlertTitle>
+            <MudAlertText>لم يتم العثور على العهدة المطلوبة</MudAlertText>
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="GoBack">العودة</MudButton>
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Elevation="5" Class="pa-6">
+            <MudText Typo="Typo.h4" Class="mb-4 text-center" Color="Color.Primary">
+                صرف عهدة للموظف
+            </MudText>
+
+            <MudPaper Elevation="1" Class="pa-4 mb-4">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">معلومات العهدة:</MudText>
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>السيريال:</strong> @_asset.SerialNumber</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>الصنف:</strong> @_asset.ItemName</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>المخزن الحالي:</strong> @_asset.WarehouseName</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudChip T="string"
+                                 Color="@GetStatusColor(_asset.Status)"
+                                 Size="Size.Small">
+                            @GetStatusName(_asset.Status)
+                        </MudChip>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+
+            <MudForm @ref="_form">
+                <MudTextField @bind-Value="_issueModel.RecipientName"
+                              Label="اسم الموظف / المستلم *"
+                              Required="true"
+                              Variant="Variant.Outlined"
+                              RequiredError="يرجى إدخال اسم المستلم"
+                              Validation="@(new Func<string, IEnumerable<string>>(ValidateRecipientName))"
+                              Class="mb-3" />
+
+                <MudDatePicker Label="تاريخ الصرف *"
+                               @bind-Date="_issueDate"
+                               Variant="Variant.Outlined"
+                               Required="true"
+                               RequiredError="يرجى اختيار التاريخ"
+                               Class="mb-3" />
+
+                <MudTextField @bind-Value="_issueModel.Notes"
+                              Label="ملاحظات (اختياري)"
+                              Lines="3"
+                              Variant="Variant.Outlined"
+                              Class="mb-4" />
+
+                <div class="d-flex justify-space-between mt-4">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               OnClick="GoBack">
+                        إلغاء والعودة
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="SubmitIssue"
+                               Disabled="@(_isSubmitting || _asset.Status != AssetStatus.Available)">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Color="Color.Default" Class="mr-2" />
+                            <span>جاري الصرف...</span>
+                        }
+                        else
+                        {
+                            <span>تأكيد الصرف</span>
+                        }
+                    </MudButton>
+                </div>
+            </MudForm>
+        </MudPaper>
+
+        @if (_asset.Status != AssetStatus.Available)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Class="mt-4">
+                <MudAlertTitle>تنبيه</MudAlertTitle>
+                <MudAlertText>هذه العهدة ليست متاحة للصرف. الحالة الحالية: @GetStatusName(_asset.Status)</MudAlertText>
+            </MudAlert>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public Guid AssetId { get; set; }
+
+    private AssetDto? _asset;
+    private IssueAssetDto _issueModel = new();
+    private DateTime? _issueDate = DateTime.Now;
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private MudForm? _form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsset();
+    }
+
+    private async Task LoadAsset()
+    {
+        _isLoading = true;
+        
+        try
+        {
+            // جلب بيانات الأصل
+            _asset = await AssetService.GetAssetByIdAsync(AssetId);
+            
+            // إعداد نموذج الصرف
+            if (_asset != null)
+            {
+                _issueModel.AssetId = _asset.Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"خطأ في تحميل بيانات العهدة: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SubmitIssue()
+    {
+        if (_asset == null)
+            return;
+
+        if (_asset.Status != AssetStatus.Available)
+        {
+            Snackbar.Add("هذه العهدة ليست متاحة للصرف", Severity.Warning);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_issueModel.RecipientName))
+        {
+            Snackbar.Add("يرجى إدخال اسم المستلم", Severity.Warning);
+            return;
+        }
+
+        if (_issueDate == null)
+        {
+            Snackbar.Add("يرجى اختيار تاريخ الصرف", Severity.Warning);
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            _issueModel.Date = _issueDate.Value;
+            await TransactionService.IssueAssetAsync(_issueModel);
+
+            Snackbar.Add("✅ تم صرف العهدة بنجاح", Severity.Success);
+            
+            // الانتظار قليلاً ثم العودة
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/assets");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"❌ خطأ في صرف العهدة: {ex.Message}", Severity.Error);
+            _isSubmitting = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/assets");
+    }
+
+    private IEnumerable<string> ValidateRecipientName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            yield return "اسم المستلم مطلوب";
+        else if (value.Length < 3)
+            yield return "يجب أن يكون الاسم 3 أحرف على الأقل";
+    }
+
+    private Color GetStatusColor(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => Color.Success,
+        AssetStatus.InUse => Color.Info,
+        AssetStatus.UnderMaintenance => Color.Warning,
+        AssetStatus.Damaged => Color.Error,
+        AssetStatus.Retired => Color.Dark,
+        _ => Color.Default
+    };
+
+    private string GetStatusName(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => "متاح",
+        AssetStatus.InUse => "مستخدم",
+        AssetStatus.UnderMaintenance => "صيانة",
+        AssetStatus.Damaged => "تالف",
+        AssetStatus.Retired => "مستبعد",
+        _ => status.ToString()
+    };
+}

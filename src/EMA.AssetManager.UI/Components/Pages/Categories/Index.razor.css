@@ -1,0 +1,48 @@
+﻿/* Categories Index Page Styles */
+
+.categories-table-container {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* تخصيص رأس الجدول ليتماشى مع الثيم العسكري */
+::deep .mud-table-head .mud-table-cell {
+    background-color: #262E25 !important; /* زيتي غامق */
+    color: #C5A059 !important; /* ذهبي */
+    font-weight: bold !important;
+    font-family: 'Cairo', sans-serif !important;
+}
+
+/* تنسيق الصفوف */
+::deep .mud-table-row:hover {
+    background-color: rgba(197, 160, 89, 0.08) !important;
+}
+
+/* الهيدر العلوي */
+.page-header {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3E4B35 0%, #2D4A3E 100%);
+    color: white;
+}
+
+.font-bold {
+    font-weight: 700 !important;
+}
+
+/* أزرار الإجراءات */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* حالة عدم وجود بيانات */
+.no-data-container {
+    padding: 4rem 1rem;
+    text-align: center;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+}

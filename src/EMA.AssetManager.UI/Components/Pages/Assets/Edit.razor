@@ -1,0 +1,98 @@
+﻿@page "/assets/edit/{id:guid}"
+@using EMA.AssetManager.Domain.Enums
+@namespace EMA.AssetManager.UI.Pages.Assets
+
+<PageTitle>تعديل بيانات العهدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid #C5A059;">
+
+        <div class="mb-6">
+            <MudText Typo="Typo.h5" Class="font-bold">تعديل بيانات الأصل</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">تحديث الحالة، النقل بين المخازن، أو تصحيح البيانات</MudText>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-center py-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudForm @ref="_form" Model="@_model">
+                <MudGrid>
+
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mb-2">
+                            <MudText><b>الصنف:</b> @_itemName</MudText>
+                            <MudText Typo="Typo.caption">كود: @_itemCode</MudText>
+                        </MudAlert>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="Guid ?" Label="المخزن الحالي" Variant="Variant.Outlined"
+                                   @bind-Value="_selectedWarehouseId"
+                                   AnchorOrigin="Origin.BottomCenter"
+                                   AdornmentIcon="@Icons.Material.Filled.Store"
+                                   Required="true" RequiredError="المخزن مطلوب">
+                            @foreach (var w in _warehouses)
+                            {
+                                <MudSelectItem Value="@((Guid?)w.Id)">@w.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="AssetStatus" Label="الحالة الحالية" Variant="Variant.Outlined"
+                                   @bind-Value="_model.Status"
+                                   AnchorOrigin="Origin.BottomCenter"
+                                   AdornmentIcon="@Icons.Material.Filled.Info">
+                            @foreach (AssetStatus status in Enum.GetValues(typeof(AssetStatus)))
+                            {
+                                <MudSelectItem Value="@status">@GetStatusName(status)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12"><MudDivider /></MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_model.SerialNumber" Label="السيريال نمبر" Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.QrCode"
+                                      Required="true" RequiredError="السيريال مطلوب" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_model.Barcode" Label="الباركود" Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.QrCodeScanner" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudDatePicker Label="تاريخ الشراء" Editable="true" @bind-Date="_model.PurchaseDate"
+                                       Variant="Variant.Outlined" DisableToolbar="true" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudDatePicker Label="تاريخ انتهاء الضمان" Editable="true" @bind-Date="_model.ExpiryDate"
+                                       Variant="Variant.Outlined" DisableToolbar="true" />
+                    </MudItem>
+
+                </MudGrid>
+
+                <MudDivider Class="my-6" />
+
+                <div class="d-flex justify-end gap-2">
+                    <MudButton OnClick="Cancel" Variant="Variant.Text">إلغاء</MudButton>
+                    <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                        }
+                        حفظ التعديلات
+                    </MudButton>
+                </div>
+            </MudForm>
+        }
+    </MudPaper>
+</MudContainer>

@@ -1,0 +1,47 @@
+﻿@page "/warehouses/create"
+@namespace EMA.AssetManager.UI.Pages.Warehouses
+
+<PageTitle>إضافة مخزن جديد</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid #C5A059;">
+        <div class="mb-6">
+            <MudText Typo="Typo.h5" Class="font-bold">تسجيل مخزن جديد</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">إضافة بيانات الموقع والمسئول عن العهدة</MudText>
+        </div>
+
+        <MudForm @ref="_form" Model="@_model">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.Name" Label="اسم المخزن" Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Store"
+                                  Required="true" RequiredError="اسم المخزن مطلوب" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.Location" Label="الموقع / المبنى" Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationOn"
+                                  Required="true" RequiredError="الموقع مطلوب" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_model.KeeperName" Label="اسم أمين المخزن (اختياري)" Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" />
+                </MudItem>
+            </MudGrid>
+
+            <MudDivider Class="my-6" />
+
+            <div class="d-flex justify-end gap-2">
+                <MudButton OnClick="Cancel" Variant="Variant.Text">إلغاء</MudButton>
+                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                    }
+                    حفظ البيانات
+                </MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</MudContainer>

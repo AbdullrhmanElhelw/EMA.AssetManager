@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="EMA.AssetManager.Domain/EMA.AssetManager.Domain.csproj" />
+  <Project Path="src/EMA.AssetManager.Services/EMA.AssetManager.Services.csproj" />
+  <Project Path="src/EMA.AssetManager.UI/EMA.AssetManager.UI.csproj" />
+</Solution>

@@ -1,0 +1,241 @@
+﻿@page "/assets"
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+@using EMA.AssetManager.Domain.Enums
+@using EMA.AssetManager.Services.Dtos.Assets
+@using EMA.AssetManager.Services.Dtos.Transactions
+@using EMA.AssetManager.Services.Dtos.Warehouses
+@using EMA.AssetManager.Services.Interfaces
+@inject IAssetService AssetService
+@inject IWarehouseService WarehouseService
+@inject ITransactionService TransactionService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>إدارة العهدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Class="page-header mb-4 pa-4" Elevation="3">
+        <div class="d-flex align-center justify-space-between">
+            <MudText Typo="Typo.h5" Class="font-bold">سجل العهدة والأصول</MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="NavigateToCreate">
+                إضافة عهدة
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    <MudTable Items="@_assets"
+              Dense="true"
+              Hover="true"
+              Striped="true"
+              Filter="new Func<AssetDto, bool>(FilterFunc)"
+              Loading="@_isLoading"
+              @ref="_table">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6" Class="me-4">الأصول</MudText>
+            <MudSpacer />
+
+            <MudGrid Class="align-center" Spacing="1">
+                <MudItem xs="12" sm="3">
+                    <MudSelect T="AssetStatus ?" Label="فلتر بالحالة" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                               @bind-Value="_selectedStatusFilter" Clearable="true">
+                        <MudSelectItem T="AssetStatus ?" Value="null">الكل</MudSelectItem>
+                        @foreach (AssetStatus status in Enum.GetValues(typeof(AssetStatus)))
+                        {
+                            <MudSelectItem T="AssetStatus ?" Value="@status">@GetStatusName(status)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="3">
+                    <MudSelect T="Guid ?" Label="فلتر بالمخزن" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                               @bind-Value="_selectedWarehouseFilter" Clearable="true">
+                        <MudSelectItem T="Guid ?" Value="null">الكل</MudSelectItem>
+                        @foreach (var w in _warehouses)
+                        {
+                            <MudSelectItem T="Guid ?" Value="@w.Id">@w.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_searchString" Placeholder="بحث بالسيريال أو الاسم..." Variant="Variant.Outlined"
+                                  Margin="Margin.Dense" Immediate="true" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" />
+                </MudItem>
+            </MudGrid>
+        </ToolBarContent>
+
+        <HeaderContent>
+            <MudTh>السيريال</MudTh>
+            <MudTh>الصنف</MudTh>
+            <MudTh>المخزن</MudTh>
+            <MudTh Style="width: 180px;">الحالة (تعديل فوري)</MudTh>
+            <MudTh>الإجراءات</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.SerialNumber</MudTd>
+            <MudTd>@context.ItemName</MudTd>
+            <MudTd>@context.WarehouseName</MudTd>
+
+            <MudTd>
+                <MudSelect T="AssetStatus"
+                           Value="@context.Status"
+                           ValueChanged="@((newStatus) => ChangeStatusDirectly(context, newStatus))"
+                           Variant="Variant.Text"
+                           Margin="Margin.Dense"
+                           Dense="true"
+                           DisableUnderLine="true">
+                    @foreach (AssetStatus status in Enum.GetValues(typeof(AssetStatus)))
+                    {
+                        <MudSelectItem Value="@status">
+                            <div class="d-flex align-center gap-2">
+                                <MudIcon Icon="@Icons.Material.Filled.Circle" Color="@GetStatusColor(status)" Size="Size.Small" />
+                                <MudText Typo="Typo.body2">@GetStatusName(status)</MudText>
+                            </div>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudTd>
+
+            <MudTd>
+                <div class="d-flex gap-1">
+                    <MudTooltip Text="سجل الحركات">
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small" Href="@($"/assets/details/{context.Id}")" />
+                    </MudTooltip>
+
+                    @if (context.Status == AssetStatus.Available)
+                    {
+                        <MudTooltip Text="صرف لموظف">
+                            <MudIconButton Icon="@Icons.Material.Filled.Output" Color="Color.Warning" Size="Size.Small" OnClick="@(() => NavigateToIssue(context.Id))" />
+                        </MudTooltip>
+                    }
+
+                    @if (context.Status == AssetStatus.InUse)
+                    {
+                        <MudTooltip Text="إرجاع للمخزن">
+                            <MudIconButton Icon="@Icons.Material.Filled.Input" Color="Color.Success" Size="Size.Small" OnClick="@(() => NavigateToReturn(context.Id))" />
+                        </MudTooltip>
+                    }
+                    <MudTooltip Text="طباعة الباركود (QR)">
+                        <MudIconButton Icon="@Icons.Material.Filled.QrCode2"
+                                       Color="Color.Dark"
+                                       Size="Size.Small"
+                                       Href="@($"/assets/print/{context.Id}")" />
+                    </MudTooltip>
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small" OnClick="@(() => NavigateToEdit(context.Id))" />
+                </div>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<AssetDto> _assets = new();
+    private List<WarehouseDto> _warehouses = new();
+    private bool _isLoading = true;
+    private MudTable<AssetDto>? _table;
+
+    // الفلاتر
+    private string _searchString = "";
+    private Guid? _selectedWarehouseFilter;
+    private AssetStatus? _selectedStatusFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _isLoading = true;
+        try
+        {
+            var assetsResult = await AssetService.GetAssetsAsync();
+            _assets = assetsResult?.ToList() ?? new List<AssetDto>();
+
+            var warehousesResult = await WarehouseService.GetWarehousesAsync();
+            _warehouses = warehousesResult?.ToList() ?? new List<WarehouseDto>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"خطأ: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    // --- دالة التغيير الفوري للحالة ---
+    private async Task ChangeStatusDirectly(AssetDto asset, AssetStatus newStatus)
+    {
+        // لو اختار نفس الحالة ميعملش حاجة
+        if (asset.Status == newStatus) return;
+
+        try
+        {
+            // حفظ في الداتابيز
+            await AssetService.UpdateAssetStatusAsync(asset.Id, newStatus);
+
+            // تحديث الواجهة فوراً
+            asset.Status = newStatus;
+
+            Snackbar.Add($"تم تحديث الحالة إلى {GetStatusName(newStatus)}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"فشل التحديث: {ex.Message}", Severity.Error);
+            // لو فشل، نعيد تحميل البيانات عشان نرجع الحالة الأصلية
+            await LoadData();
+        }
+    }
+
+    // --- الفلترة والبحث ---
+    private bool FilterFunc(AssetDto element)
+    {
+        if (_selectedStatusFilter != null && element.Status != _selectedStatusFilter) return false;
+        if (_selectedWarehouseFilter != null && element.WarehouseId != _selectedWarehouseFilter) return false;
+        if (!string.IsNullOrWhiteSpace(_searchString))
+        {
+            var searchData = $"{element.SerialNumber} {element.Barcode} {element.ItemName} {element.WarehouseName}";
+            if (!searchData.Contains(_searchString, StringComparison.OrdinalIgnoreCase)) return false;
+        }
+        return true;
+    }
+
+    // --- التنقل ---
+    private void NavigateToCreate() => Navigation.NavigateTo("/assets/create");
+    private void NavigateToEdit(Guid id) => Navigation.NavigateTo($"/assets/edit/{id}");
+    private void NavigateToIssue(Guid id) => Navigation.NavigateTo($"/assets/issue/{id}");
+    private void NavigateToReturn(Guid id) => Navigation.NavigateTo($"/assets/return/{id}");
+
+    // --- الألوان والأسماء ---
+    private Color GetStatusColor(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => Color.Success,
+        AssetStatus.InUse => Color.Info,
+        AssetStatus.UnderMaintenance => Color.Warning,
+        AssetStatus.Damaged => Color.Error,
+        AssetStatus.Retired => Color.Dark,
+        _ => Color.Default
+    };
+
+    private string GetStatusName(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => "متاح",
+        AssetStatus.InUse => "مستخدم",
+        AssetStatus.UnderMaintenance => "صيانة",
+        AssetStatus.Damaged => "تالف",
+        AssetStatus.Retired => "كهنة",
+        _ => status.ToString()
+    };
+}

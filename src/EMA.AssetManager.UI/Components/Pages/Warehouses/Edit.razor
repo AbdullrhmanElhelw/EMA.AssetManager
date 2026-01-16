@@ -1,0 +1,62 @@
+﻿@page "/warehouses/edit/{id:guid}"
+@namespace EMA.AssetManager.UI.Pages.Warehouses
+
+<PageTitle>تعديل بيانات المخزن</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid #C5A059;">
+
+        <div class="mb-6">
+            <MudText Typo="Typo.h5" Class="font-bold">تعديل بيانات المخزن</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">تحديث بيانات الموقع أو أمين العهدة</MudText>
+        </div>
+
+        @if (_isLoading)
+        {
+            <div class="d-flex justify-center py-8">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudForm @ref="_form" Model="@_model">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.Name" Label="اسم المخزن" Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Store"
+                                      Required="true" RequiredError="اسم المخزن مطلوب" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.Location" Label="الموقع" Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LocationOn"
+                                      Required="true" RequiredError="الموقع مطلوب" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.KeeperName" Label="أمين المخزن المسئول" Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudSwitch @bind-Value="_model.IsActive" Color="Color.Success"
+                                   Label="@(_model.IsActive ? "الحالة: نشط (يستقبل عهدة)" : "الحالة: متوقف")" />
+                    </MudItem>
+                </MudGrid>
+
+                <MudDivider Class="my-6" />
+
+                <div class="d-flex justify-end gap-2">
+                    <MudButton OnClick="Cancel" Variant="Variant.Text">إلغاء</MudButton>
+                    <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                        }
+                        حفظ التعديلات
+                    </MudButton>
+                </div>
+            </MudForm>
+        }
+    </MudPaper>
+</MudContainer>

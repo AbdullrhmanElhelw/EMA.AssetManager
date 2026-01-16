@@ -1,0 +1,254 @@
+﻿@page "/assets/return/{AssetId:guid}"
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+@using EMA.AssetManager.Domain.Enums
+@using EMA.AssetManager.Services.Dtos.Assets
+@using EMA.AssetManager.Services.Dtos.Transactions
+@using EMA.AssetManager.Services.Dtos.Warehouses
+@using EMA.AssetManager.Services.Interfaces
+@inject IAssetService AssetService
+@inject IWarehouseService WarehouseService
+@inject ITransactionService TransactionService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>إرجاع عهدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (_asset == null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mt-4">
+            <MudAlertTitle>خطأ</MudAlertTitle>
+            <MudAlertText>لم يتم العثور على العهدة المطلوبة</MudAlertText>
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" OnClick="GoBack">العودة</MudButton>
+        </MudAlert>
+    }
+    else
+    {
+        <MudPaper Elevation="5" Class="pa-6">
+            <MudText Typo="Typo.h4" Class="mb-4 text-center" Color="Color.Success">
+                إرجاع عهدة للمخزن
+            </MudText>
+
+            <MudPaper Elevation="1" Class="pa-4 mb-4">
+                <MudText Typo="Typo.subtitle1" Class="mb-2">معلومات العهدة:</MudText>
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>السيريال:</strong> @_asset.SerialNumber</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>الصنف:</strong> @_asset.ItemName</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.body2"><strong>المخزن الحالي:</strong> @_asset.WarehouseName</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudChip T="string"
+                                 Color="@GetStatusColor(_asset.Status)"
+                                 Size="Size.Small">
+                            @GetStatusName(_asset.Status)
+                        </MudChip>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+
+            <MudForm @ref="_form">
+                <MudSelect T="Guid"
+                           Label="المخزن المستلم *"
+                           @bind-Value="_returnModel.ReturnToWarehouseId"
+                           Variant="Variant.Outlined"
+                           Required="true"
+                           RequiredError="يرجى اختيار المخزن"
+                           Class="mb-3">
+                    @foreach (var w in _warehouses)
+                    {
+                        <MudSelectItem Value="@w.Id">@w.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSelect T="AssetStatus"
+                           Label="الحالة بعد الإرجاع *"
+                           @bind-Value="_returnModel.NewStatus"
+                           Variant="Variant.Outlined"
+                           Required="true"
+                           RequiredError="يرجى اختيار الحالة"
+                           Class="mb-3">
+                    <MudSelectItem Value="@AssetStatus.Available">سليم (متاح للاستخدام)</MudSelectItem>
+                    <MudSelectItem Value="@AssetStatus.Damaged">تالف</MudSelectItem>
+                    <MudSelectItem Value="@AssetStatus.UnderMaintenance">تحت الصيانة</MudSelectItem>
+                    <MudSelectItem Value="@AssetStatus.Retired">مستبعد</MudSelectItem>
+                </MudSelect>
+
+                <MudDatePicker Label="تاريخ الإرجاع *"
+                               @bind-Date="_returnDate"
+                               Variant="Variant.Outlined"
+                               Required="true"
+                               RequiredError="يرجى اختيار التاريخ"
+                               Class="mb-3" />
+
+                <MudTextField @bind-Value="_returnModel.Notes"
+                              Label="ملاحظات (اختياري)"
+                              Lines="3"
+                              Variant="Variant.Outlined"
+                              Class="mb-4" />
+
+                <div class="d-flex justify-space-between mt-4">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               OnClick="GoBack">
+                        إلغاء والعودة
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               OnClick="SubmitReturn"
+                               Disabled="@(_isSubmitting || _asset.Status != AssetStatus.InUse)">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Color="Color.Default" Class="mr-2" />
+                            <span>جاري الإرجاع...</span>
+                        }
+                        else
+                        {
+                            <span>تأكيد الإرجاع</span>
+                        }
+                    </MudButton>
+                </div>
+            </MudForm>
+        </MudPaper>
+
+        @if (_asset.Status != AssetStatus.InUse)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Class="mt-4">
+                <MudAlertTitle>تنبيه</MudAlertTitle>
+                <MudAlertText>هذه العهدة ليست مستخدمة حالياً. لا يمكن إرجاعها.</MudAlertText>
+            </MudAlert>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public Guid AssetId { get; set; }
+
+    private AssetDto? _asset;
+    private List<WarehouseDto> _warehouses = new();
+    private ReturnAssetDto _returnModel = new();
+    private DateTime? _returnDate = DateTime.Now;
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private MudForm? _form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _isLoading = true;
+        
+        try
+        {
+            // جلب بيانات الأصل
+            _asset = await AssetService.GetAssetByIdAsync(AssetId);
+            
+            // جلب المخازن
+            var warehousesResult = await WarehouseService.GetWarehousesAsync();
+            _warehouses = warehousesResult?.ToList() ?? new List<WarehouseDto>();
+            
+            // إعداد نموذج الإرجاع
+            if (_asset != null)
+            {
+                _returnModel.AssetId = _asset.Id;
+                _returnModel.NewStatus = AssetStatus.Available;
+                
+                // تعيين أول مخزن كقيمة افتراضية
+                if (_warehouses.Any())
+                {
+                    _returnModel.ReturnToWarehouseId = _warehouses.First().Id;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"خطأ في تحميل البيانات: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SubmitReturn()
+    {
+        if (_asset == null)
+            return;
+
+        if (_asset.Status != AssetStatus.InUse)
+        {
+            Snackbar.Add("هذه العهدة ليست مستخدمة حالياً", Severity.Warning);
+            return;
+        }
+
+        if (_returnModel.ReturnToWarehouseId == Guid.Empty)
+        {
+            Snackbar.Add("يرجى اختيار المخزن المستلم", Severity.Warning);
+            return;
+        }
+
+        if (_returnDate == null)
+        {
+            Snackbar.Add("يرجى اختيار تاريخ الإرجاع", Severity.Warning);
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            _returnModel.Date = _returnDate.Value;
+            await TransactionService.ReturnAssetAsync(_returnModel);
+
+            Snackbar.Add("✅ تم إرجاع العهدة بنجاح", Severity.Success);
+            
+            // الانتظار قليلاً ثم العودة
+            await Task.Delay(1500);
+            Navigation.NavigateTo("/assets");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"❌ خطأ في إرجاع العهدة: {ex.Message}", Severity.Error);
+            _isSubmitting = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/assets");
+    }
+
+    private Color GetStatusColor(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => Color.Success,
+        AssetStatus.InUse => Color.Info,
+        AssetStatus.UnderMaintenance => Color.Warning,
+        AssetStatus.Damaged => Color.Error,
+        AssetStatus.Retired => Color.Dark,
+        _ => Color.Default
+    };
+
+    private string GetStatusName(AssetStatus status) => status switch
+    {
+        AssetStatus.Available => "متاح",
+        AssetStatus.InUse => "مستخدم",
+        AssetStatus.UnderMaintenance => "صيانة",
+        AssetStatus.Damaged => "تالف",
+        AssetStatus.Retired => "مستبعد",
+        _ => status.ToString()
+    };
+}

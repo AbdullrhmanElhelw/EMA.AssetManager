@@ -1,0 +1,115 @@
+﻿@page "/categories"
+@using EMA.AssetManager.Services.Dtos.Categories
+@namespace EMA.AssetManager.UI.Pages.Categories
+
+<PageTitle>إدارة الفئات - الأكاديمية العسكرية</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Class="page-header mb-4" Elevation="3">
+        <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center">
+                <MudIcon Icon="@Icons.Material.Filled.Category" Class="me-3" Size="Size.Large" Color="Color.Inherit" />
+                <div>
+                    <MudText Typo="Typo.h5" Class="mb-1 font-bold">إدارة تصنيفات العهدة</MudText>
+                    <MudText Typo="Typo.body2" Style="opacity: 0.9;">إضافة وتعديل وحذف فئات الأصناف بالمخازن</MudText>
+                </div>
+            </div>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Class="add-button"
+                       OnClick="NavigateToCreate">
+                إضافة فئة جديدة
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center py-12">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else if (_categories?.Any() == true)
+    {
+        <div class="categories-table-container">
+            <MudTable Items="@_categories" Dense="true" Hover="true" Striped="true" Elevation="4" Class="rounded-lg">
+                <HeaderContent>
+                    <MudTh>#</MudTh>
+                    <MudTh>اسم الفئة</MudTh>
+                    <MudTh Class="text-center">عدد العناصر</MudTh>
+                    <MudTh Class="text-center">الحالة</MudTh>
+                    <MudTh Class="text-center">الإجراءات</MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+                    <MudTd>@((_categories.IndexOf(context) + 1).ToString("D2"))</MudTd>
+
+                    <MudTd>
+                        <div class="d-flex align-center">
+                            <MudIcon Icon="@Icons.Material.Filled.Folder" Size="Size.Small" Class="me-2" Color="Color.Secondary" />
+                            <MudText Typo="Typo.body2" Class="font-bold">@context.Name</MudText>
+                        </div>
+                    </MudTd>
+
+                    <MudTd Class="text-center">
+                        <MudBadge Color="Color.Primary" Content="@context.ItemsCount" Overlap="true" Class="mx-auto">
+                            <MudIcon Icon="@Icons.Material.Filled.Inventory2" Color="Color.Default" />
+                        </MudBadge>
+                    </MudTd>
+
+                    <MudTd Class="text-center">
+                        <div class="d-flex justify-center">
+                            <MudSwitch T="bool"
+                                       Value="@context.IsActive"
+                                       ValueChanged="@((bool val) => ToggleStatus(context, val))"
+                                       Color="Color.Success"
+                                       UnCheckedColor="Color.Error"
+                                       Size="Size.Small"
+                                       Label="@(context.IsActive ? "نشطة" : "غير نشطة")" />
+                        </div>
+                    </MudTd>
+
+                    <MudTd Class="text-center">
+                        <div class="action-buttons">
+                            <MudTooltip Text="تعديل">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               Variant="Variant.Filled"
+                                               Color="Color.Info"
+                                               Size="Size.Small"
+                                               Class="action-button"
+                                               OnClick="@(() => NavigateToEdit(context.Id))" />
+                            </MudTooltip>
+
+                            <MudTooltip Text="حذف">
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                               Variant="Variant.Filled"
+                                               Color="Color.Error"
+                                               Size="Size.Small"
+                                               Class="action-button"
+                                               OnClick="@(() => ShowDeleteDialog(context))" />
+                            </MudTooltip>
+                        </div>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </div>
+    }
+    else
+    {
+        <MudPaper Elevation="0" Class="no-data-container">
+            <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.h6" Class="mb-2">لا توجد فئات مسجلة</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                قم بإضافة أول فئة للمساعدة في تنظيم العهدة
+            </MudText>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       EndIcon="@Icons.Material.Filled.Add"
+                       OnClick="NavigateToCreate">
+                إضافة فئة جديدة
+            </MudButton>
+        </MudPaper>
+    }
+</MudContainer>

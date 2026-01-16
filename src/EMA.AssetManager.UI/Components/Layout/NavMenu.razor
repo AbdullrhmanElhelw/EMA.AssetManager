@@ -1,0 +1,180 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Navigation
+
+<MudNavMenu Class="modern-nav-menu">
+    <!-- قسم الرئيسية -->
+    <div class="nav-section">
+        <div class="section-header" @onclick="ToggleDashboardSection">
+            <div class="d-flex align-center justify-space-between w-100">
+                <div class="d-flex align-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Home" Size="Size.Small" Class="me-2" />
+                    <MudText Typo="Typo.subtitle2" Class="section-title">الرئيسية</MudText>
+                </div>
+                <MudIcon 
+                    Icon="@Icons.Material.Filled.ExpandMore" 
+                    Size="Size.Small"
+                    Style="@DashboardIconStyle" />
+            </div>
+        </div>
+
+        @if (_isDashboardExpanded)
+        {
+            <div class="section-content animated-section">
+                <MudNavLink 
+                    Href="/" 
+                    Match="NavLinkMatch.All" 
+                    Icon="@Icons.Material.Filled.Dashboard" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    لوحة القيادة
+                </MudNavLink>
+            </div>
+        }
+    </div>
+
+    <!-- قسم إدارة العهدة -->
+    <div class="nav-section">
+        <div class="section-header" @onclick="ToggleManagementSection">
+            <div class="d-flex align-center justify-space-between w-100">
+                <div class="d-flex align-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Business" Size="Size.Small" Class="me-2" />
+                    <MudText Typo="Typo.subtitle2" Class="section-title">إدارة العهدة</MudText>
+                </div>
+                <MudIcon 
+                    Icon="@Icons.Material.Filled.ExpandMore" 
+                    Size="Size.Small"
+                    Style="@ManagementIconStyle" />
+            </div>
+        </div>
+
+        @if (_isManagementExpanded)
+        {
+            <div class="section-content animated-section">
+                <MudNavLink 
+                    Href="/categories" 
+                    Icon="@Icons.Material.Filled.Category" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    الأصناف
+                </MudNavLink>
+
+                <MudNavLink Href="/items"
+                    Icon="@Icons.Material.Filled.Inventory2" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    سجل الأصناف
+                </MudNavLink>
+                
+                <MudNavLink 
+                    Href="/warehouses" 
+                    Icon="@Icons.Material.Filled.Warehouse" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    المخازن
+                </MudNavLink>
+
+                <MudNavLink 
+                    Href="/transactions" 
+                    Icon="@Icons.Material.Filled.SwapHoriz" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    حركة الصرف والإرجاع
+                </MudNavLink>
+
+                <MudNavLink 
+                    Href="/assets"
+                    Match="NavLinkMatch.All" 
+                    Icon="@Icons.Material.Filled.QrCodeScanner">إدارة العهدة
+                </MudNavLink>
+            </div>
+        }
+    </div>
+
+    <!-- قسم التقارير والإدارة -->
+    <div class="nav-section">
+        <div class="section-header" @onclick="ToggleReportsSection">
+            <div class="d-flex align-center justify-space-between w-100">
+                <div class="d-flex align-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Assessment" Size="Size.Small" Class="me-2" />
+                    <MudText Typo="Typo.subtitle2" Class="section-title">التقارير والإدارة</MudText>
+                </div>
+                <MudIcon 
+                    Icon="@Icons.Material.Filled.ExpandMore" 
+                    Size="Size.Small"
+                    Style="@ReportsIconStyle" />
+            </div>
+        </div>
+
+        @if (_isReportsExpanded)
+        {
+            <div class="section-content animated-section">
+                <MudNavLink 
+                    Href="/reports" 
+                    Icon="@Icons.Material.Filled.Assessment" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    التقارير والإحصائيات
+                </MudNavLink>
+
+                <AuthorizeView Roles="Admin">
+                    <MudNavLink 
+                        Href="/users" 
+                        Icon="@Icons.Material.Filled.SupervisedUserCircle" 
+                        IconColor="Color.Secondary"
+                        ActiveClass="active-nav-link">
+                        إدارة المستخدمين
+                    </MudNavLink>
+                </AuthorizeView>
+                
+                <MudNavLink 
+                    Href="/settings" 
+                    Icon="@Icons.Material.Filled.Settings" 
+                    IconColor="Color.Secondary"
+                    ActiveClass="active-nav-link">
+                    الإعدادات
+                </MudNavLink>
+            </div>
+        }
+    </div>
+
+    <!-- قسم سريع للوصول -->
+    <MudDivider Class="my-4" Style="border-color: rgba(197, 160, 89, 0.2);" />
+
+    <div class="quick-access">
+        <MudText Typo="Typo.caption" Class="px-4 mb-2" Style="color: rgba(255, 255, 255, 0.5);">
+            وصول سريع
+        </MudText>
+        
+        <div class="d-flex flex-wrap justify-center px-3">
+            <MudTooltip Text="إنشاء صنف جديد" Placement="Placement.Top">
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Add" 
+                    Size="Size.Small"
+                    Color="Color.Secondary"
+                    Variant="Variant.Outlined"
+                    Class="quick-action-btn"
+                    OnClick="@(() => Navigation.NavigateTo("/categories/create"))" />
+            </MudTooltip>
+            
+            <MudTooltip Text="إضافة أصل جديد" Placement="Placement.Top">
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Inventory" 
+                    Size="Size.Small"
+                    Color="Color.Secondary"
+                    Variant="Variant.Outlined"
+                    Class="quick-action-btn"
+                    OnClick="@(() => Navigation.NavigateTo("/items/create"))" />
+            </MudTooltip>
+            
+            <MudTooltip Text="تقرير سريع" Placement="Placement.Top">
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Summarize" 
+                    Size="Size.Small"
+                    Color="Color.Secondary"
+                    Variant="Variant.Outlined"
+                    Class="quick-action-btn"
+                    OnClick="@(() => Navigation.NavigateTo("/reports/quick"))" />
+            </MudTooltip>
+        </div>
+    </div>
+</MudNavMenu>

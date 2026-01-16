@@ -1,0 +1,139 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_currentTheme" />
+<MudRTLProvider RightToLeft="_isRTL" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <!-- AppBar عصري -->
+    <MudAppBar Elevation="1" Color="Color.Primary" Dense="true" Class="modern-app-bar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@DrawerToggle"
+                       Class="menu-btn" />
+
+        <div class="d-flex align-center">
+            <div class="app-logo-container me-3">
+                <img src="/logo.png" alt="شعار الأكاديمية" class="app-bar-logo" />
+            </div>
+
+            <div class="d-flex flex-column">
+                <MudText Typo="Typo.subtitle2" Class="app-title" Style="line-height:1.2;">
+                    الأكاديمية العسكرية المصرية
+                </MudText>
+                <MudText Typo="Typo.caption" Class="app-subtitle">
+                    نظام إدارة الأصول
+                </MudText>
+            </div>
+        </div>
+
+        <MudSpacer />
+
+        <!-- أيقونات الإجراءات -->
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="action-icons">
+            <MudIconButton Icon="@Icons.Material.Filled.Notifications"
+                           Color="Color.Inherit"
+                           Size="Size.Small"
+                           Class="action-btn" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                           Color="Color.Inherit"
+                           Size="Size.Small"
+                           Class="action-btn" />
+
+            <MudMenu Direction="Direction.Left" OffsetY="true" Class="user-menu">
+                <ActivatorContent>
+                    <MudButton Variant="Variant.Text"
+                               Color="Color.Inherit"
+                               EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                               Class="user-profile-btn">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Color="Color.Secondary"
+                                       Variant="Variant.Filled"
+                                       Size="Size.Small"
+                                       Class="user-avatar">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                            </MudAvatar>
+                            <div class="d-none d-md-flex flex-column text-start">
+                                <MudText Typo="Typo.body2" Class="user-name">مدير النظام</MudText>
+                                <MudText Typo="Typo.caption" Class="user-role">مشرف عام</MudText>
+                            </div>
+                        </MudStack>
+                    </MudButton>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Settings">الإعدادات</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.ExitToApp">تسجيل الخروج</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </MudStack>
+    </MudAppBar>
+
+    <!-- Drawer عصري - سيكون مفتوحاً افتراضياً -->
+    <MudDrawer @bind-Open="_drawerOpen"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="0"
+               Width="280px"
+               Anchor="Anchor.Right"
+               Variant="@DrawerVariant.Responsive"
+               Class="modern-drawer">
+
+        <div class="drawer-content">
+            <!-- رأس الدراور -->
+            <div class="drawer-header">
+                <div class="logo-container">
+                    <img src="/logo.png" alt="شعار الأكاديمية" class="drawer-logo" />
+                    <div class="logo-badge">
+                        <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" />
+                    </div>
+                </div>
+
+                <div class="academy-info">
+                    <MudText Typo="Typo.h6" Class="academy-name">
+                        الأكاديمية العسكرية
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="academy-motto">
+                        العلم ∙ الشرف ∙ الوطن
+                    </MudText>
+                </div>
+            </div>
+
+            <!-- القائمة الجانبية -->
+            <div class="nav-container">
+                <NavMenu />
+            </div>
+
+            <!-- تذييل الدراور -->
+            <div class="drawer-footer">
+                <div class="version-info">
+                    <MudChip T="string" Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary">
+                        v2.1.0
+                    </MudChip>
+                </div>
+
+                <div class="designer-info">
+                    <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Class="me-1" />
+                    <MudText Typo="Typo.caption" Class="designer-text">
+                        تصميم وبرمجة: ملازم أول / عبدالرحمن الحلو
+                    </MudText>
+                </div>
+
+                <MudText Typo="Typo.caption" Class="copyright">
+                    © @DateTime.Now.Year جميع الحقوق محفوظة
+                </MudText>
+            </div>
+        </div>
+    </MudDrawer>
+
+    <!-- المحتوى الرئيسي مع تعديل الهامش ليكون متجاوباً مع الدراور المفتوح -->
+    <MudMainContent Class="modern-main-content">
+        <div class="content-wrapper @(_drawerOpen ? "drawer-open" : "drawer-closed")">
+            <MudPaper Elevation="0" Class="content-container">
+                @Body
+            </MudPaper>
+        </div>
+    </MudMainContent>
+</MudLayout>

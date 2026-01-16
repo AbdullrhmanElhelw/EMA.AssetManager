@@ -1,0 +1,123 @@
+﻿@page "/"
+@namespace EMA.AssetManager.UI.Pages
+@using EMA.AssetManager.Services.Dtos.Dashboard
+
+<PageTitle>الرئيسية - نظام إدارة العهدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-8">
+
+    <div class="d-flex justify-space-between align-center mb-8">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-bold mb-1">لوحة القيادة</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">نظرة عامة ومؤشرات الأداء</MudText>
+        </div>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadData">تحديث</MudButton>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center align-center" style="height: 400px;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+    else
+    {
+        @if (_data.LowStockItemsCount > 0)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Class="mb-6 rounded-lg" Icon="@Icons.Material.Filled.Warning">
+                تنبيه: يوجد <strong>@_data.LowStockItemsCount</strong> أصناف وصلت للحد الأدنى (نواقص) يرجى مراجعة المخزون.
+            </MudAlert>
+        }
+
+        <MudGrid Class="mb-6">
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-center rounded-lg mud-width-full border-solid border-b-4 border-primary">
+                    <MudIcon Icon="@Icons.Material.Filled.QrCodeScanner" Size="Size.Large" Color="Color.Primary" Class="mb-2" />
+                    <MudText Typo="Typo.h3" Class="font-bold">@_data.TotalAssets</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">إجمالي قطع العهدة</MudText>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-center rounded-lg mud-width-full border-solid border-b-4 border-secondary">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory" Size="Size.Large" Color="Color.Secondary" Class="mb-2" />
+                    <MudText Typo="Typo.h3" Class="font-bold">@_data.TotalItems</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">الأصناف المعرفة</MudText>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-center rounded-lg mud-width-full border-solid border-b-4 border-info">
+                    <MudIcon Icon="@Icons.Material.Filled.Store" Size="Size.Large" Color="Color.Info" Class="mb-2" />
+                    <MudText Typo="Typo.h3" Class="font-bold">@_data.TotalWarehouses</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">المخازن المسجلة</MudText>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-center rounded-lg mud-width-full border-solid border-b-4 border-success">
+                    <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Large" Color="Color.Success" Class="mb-2" />
+                    <MudText Typo="Typo.h3" Class="font-bold">@_data.TotalCategories</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">فئات الأصناف</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid>
+            <MudItem xs="12" md="8">
+                <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="height: 100%;">
+                    <MudText Typo="Typo.h6" Class="mb-4 font-bold">توزيع حالة العهدة</MudText>
+                    <div class="d-flex justify-center">
+                        @if (_chartData.Sum() > 0)
+                        {
+                            <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px"
+                                      InputData="@_chartData" InputLabels="@_chartLabels"
+                                      ChartOptions="@_chartOptions">
+                                <CustomGraphics>
+                                    <text class="donut-inner-text" x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="3">إجمالي</text>
+                                    <text class="donut-inner-text" x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="black" font-family="Helvetica" font-size="6">@_data.TotalAssets</text>
+                                </CustomGraphics>
+                            </MudChart>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info">لا توجد بيانات كافية للرسم البياني</MudAlert>
+                        }
+                    </div>
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="height: 100%;">
+                    <MudText Typo="Typo.h6" Class="mb-4 font-bold">تفاصيل الحالة</MudText>
+                    <MudList T="string" Dense="true" Clickable="false">
+                        <MudListItem Icon="@Icons.Material.Filled.Circle" IconColor="Color.Success">
+                            <div class="d-flex justify-space-between">
+                                <MudText>متاح بالمخازن</MudText>
+                                <MudChip Size="Size.Small" Color="Color.Success">@_data.AssetsAvailable</MudChip>
+                            </div>
+                        </MudListItem>
+                        <MudListItem Icon="@Icons.Material.Filled.Circle" IconColor="Color.Info">
+                            <div class="d-flex justify-space-between">
+                                <MudText>مصروف / مستخدم</MudText>
+                                <MudChip Size="Size.Small" Color="Color.Info">@_data.AssetsInUse</MudChip>
+                            </div>
+                        </MudListItem>
+                        <MudListItem Icon="@Icons.Material.Filled.Circle" IconColor="Color.Warning">
+                            <div class="d-flex justify-space-between">
+                                <MudText>تحت الصيانة</MudText>
+                                <MudChip Size="Size.Small" Color="Color.Warning">@_data.AssetsUnderMaintenance</MudChip>
+                            </div>
+                        </MudListItem>
+                        <MudListItem Icon="@Icons.Material.Filled.Circle" IconColor="Color.Error">
+                            <div class="d-flex justify-space-between">
+                                <MudText>تالف / خردة</MudText>
+                                <MudChip Size="Size.Small" Color="Color.Error">@_data.AssetsDamaged</MudChip>
+                            </div>
+                        </MudListItem>
+                    </MudList>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>

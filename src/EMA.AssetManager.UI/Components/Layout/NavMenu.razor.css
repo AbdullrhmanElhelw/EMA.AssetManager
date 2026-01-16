@@ -1,0 +1,317 @@
+﻿/* ============================================
+   متغيرات القائمة الجانبية
+============================================ */
+:root {
+    --nav-bg: #1A2B26;
+    --nav-text: #E8F0EE;
+    --nav-hover-bg: rgba(197, 160, 89, 0.15);
+    --nav-active-bg: rgba(197, 160, 89, 0.25);
+    --nav-active-border: #C5A059;
+    --nav-section-bg: rgba(0, 0, 0, 0.15);
+    --nav-section-expanded-bg: rgba(0, 0, 0, 0.25);
+    --nav-icon-size: 1.25rem;
+    --nav-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   القائمة الجانبية الرئيسية
+============================================ */
+.modern-nav-menu {
+    background: transparent !important;
+    padding: 16px 0 !important;
+}
+
+/* ============================================
+   أقسام القائمة (Accordion)
+============================================ */
+.nav-section {
+    margin-bottom: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--nav-section-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--nav-transition);
+}
+
+    /* تأثير عند فتح القسم */
+    .nav-section:has(.section-content) {
+        background: var(--nav-section-expanded-bg);
+        border-color: rgba(197, 160, 89, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+.section-header {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: var(--nav-transition);
+    user-select: none;
+}
+
+    .section-header:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .section-header:active {
+        transform: scale(0.98);
+    }
+
+    .section-header .mud-icon-root {
+        color: var(--nav-active-border) !important;
+        transition: var(--nav-transition);
+    }
+
+.section-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.5px;
+}
+
+/* تأثير للعنوان عندما يكون القسم مفتوح */
+.nav-section:has(.section-content) .section-title {
+    color: var(--nav-active-border) !important;
+}
+
+/* ============================================
+   محتوى القسم مع Animation
+============================================ */
+.section-content {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+/* عندما يكون القسم مفتوح */
+.nav-section:has(.animated-section) .section-content {
+    padding: 8px 0;
+    max-height: 500px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.animated-section {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ============================================
+   روابط القائمة
+============================================ */
+::deep .mud-nav-link {
+    color: var(--nav-text) !important;
+    border-radius: 0 !important;
+    margin: 2px 8px !important;
+    padding: 10px 16px !important;
+    transition: var(--nav-transition) !important;
+    border-right: 3px solid transparent !important;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 0.875rem !important;
+    opacity: 0.9;
+    transform: translateX(0);
+}
+
+    ::deep .mud-nav-link:hover {
+        background-color: var(--nav-hover-bg) !important;
+        color: #FFD700 !important;
+        transform: translateX(-4px);
+        opacity: 1;
+    }
+
+    ::deep .mud-nav-link.active-nav-link {
+        background: linear-gradient(90deg, var(--nav-active-bg) 0%, transparent 100%) !important;
+        color: var(--nav-active-border) !important;
+        border-right: 3px solid var(--nav-active-border) !important;
+        font-weight: 600 !important;
+        opacity: 1;
+        box-shadow: inset 0 0 20px rgba(197, 160, 89, 0.1);
+    }
+
+    /* ============================================
+   أيقونات الروابط
+============================================ */
+    ::deep .mud-nav-link .mud-icon-root {
+        color: inherit !important;
+        margin-left: 12px !important;
+        margin-right: 0 !important;
+        font-size: var(--nav-icon-size) !important;
+        transition: transform 0.3s ease !important;
+    }
+
+    ::deep .mud-nav-link:hover .mud-icon-root {
+        transform: scale(1.1);
+    }
+
+/* ============================================
+   قسم الوصول السريع
+============================================ */
+.quick-access {
+    padding: 16px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-top: 24px;
+}
+
+.quick-action-btn {
+    margin: 4px !important;
+    border: 1px solid rgba(197, 160, 89, 0.3) !important;
+    transition: var(--nav-transition) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+    .quick-action-btn:hover {
+        background: rgba(197, 160, 89, 0.2) !important;
+        border-color: var(--nav-active-border) !important;
+        transform: translateY(-2px) scale(1.1);
+    }
+
+/* ============================================
+   الرسوم المتحركة (Animations)
+============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+::deep .mud-nav-link.active-nav-link .mud-icon-root {
+    animation: pulse 2s infinite;
+}
+
+/* ============================================
+   مؤشر القسم النشط
+============================================ */
+.nav-section:has(.section-content)::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: var(--nav-active-border);
+    border-radius: 0 3px 3px 0;
+}
+
+/* ============================================
+   تحسينات Responsive
+============================================ */
+@media (max-width: 960px) {
+    .modern-nav-menu {
+        padding: 12px 0 !important;
+    }
+
+    .nav-section {
+        margin-bottom: 6px;
+        border-radius: 6px;
+    }
+
+    .section-header {
+        padding: 10px 12px;
+    }
+
+    .section-title {
+        font-size: 0.85rem !important;
+    }
+
+    ::deep .mud-nav-link {
+        padding: 8px 12px !important;
+        margin: 1px 6px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .quick-access {
+        padding: 12px 8px;
+        margin-top: 16px;
+    }
+
+    .quick-action-btn {
+        margin: 2px !important;
+        width: 32px !important;
+        height: 32px !important;
+    }
+}
+
+/* ============================================
+   تحسينات الظلام (Dark Mode Support)
+============================================ */
+@media (prefers-color-scheme: dark) {
+    .nav-section {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+        .nav-section:has(.section-content) {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+    ::deep .mud-nav-link {
+        color: #FFFFFF !important;
+    }
+
+    .quick-access {
+        background: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* ============================================
+   تأثيرات إضافية
+============================================ */
+/* تأثير عند تحويل المؤشر */
+.section-header {
+    position: relative;
+}
+
+    .section-header::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background: var(--nav-active-border);
+        transition: width 0.3s ease;
+    }
+
+    .section-header:hover::after {
+        width: 100%;
+    }
+
+/* ============================================
+   تحسينات للطباعة
+============================================ */
+@media print {
+    .modern-nav-menu {
+        display: none !important;
+    }
+}

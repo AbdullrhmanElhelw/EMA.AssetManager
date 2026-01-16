@@ -1,0 +1,104 @@
+﻿@page "/assets/print/{Id:guid}"
+@using EMA.AssetManager.Services.Services
+@using EMA.AssetManager.Services.Dtos.Assets
+@using EMA.AssetManager.Services.Interfaces
+@inject IAssetService AssetService
+@inject QrCodeService QrService
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<PageTitle>طباعة الملصق</PageTitle>
+
+<style>
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .print-container {
+            border: none !important;
+        }
+    }
+</style>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 d-flex flex-column align-center">
+
+    @if (_isLoading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (_asset == null)
+    {
+        <MudAlert Severity="Severity.Error">الأصل غير موجود</MudAlert>
+        <MudButton Variant="Variant.Text" OnClick="GoBack" Class="mt-4">عودة</MudButton>
+    }
+    else
+    {
+        <MudPaper Class="print-container pa-4 d-flex flex-column align-center justify-center mb-6"
+                  Elevation="4"
+                  Style="width: 350px; height: 350px; border: 2px dashed #333;">
+
+            <MudText Typo="Typo.h5" Class="font-bold mb-2">@_asset.ItemName</MudText>
+
+            @if (!string.IsNullOrEmpty(_qrImage))
+            {
+                <img src="@_qrImage" style="width: 200px; height: 200px;" />
+            }
+
+            <MudText Typo="Typo.h6" Class="font-bold mt-2">@_asset.SerialNumber</MudText>
+            <MudText Typo="Typo.caption">EMA Asset Management</MudText>
+        </MudPaper>
+
+        <div class="no-print d-flex gap-4">
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="GoBack">رجوع للقائمة</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintNow">طباعة الآن</MudButton>
+        </div>
+    }
+
+</MudContainer>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private AssetDto? _asset;
+    private string _qrImage = "";
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // نجيب بيانات الأصل
+            _asset = await AssetService.GetAssetByIdAsync(Id);
+
+            if (_asset != null)
+            {
+                // نولد الصورة
+                _qrImage = QrService.GenerateQrCode(_asset.SerialNumber);
+            }
+        }
+        catch (Exception)
+        {
+            // تجاهل الأخطاء حالياً
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task PrintNow()
+    {
+        // أمر الطباعة المباشر من المتصفح
+        await JS.InvokeVoidAsync("print");
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/assets");
+    }
+}

@@ -1,0 +1,60 @@
+﻿@page "/categories/create"
+@namespace EMA.AssetManager.UI.Pages.Categories
+
+<PageTitle>إضافة فئة جديدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+
+    <div class="mb-4">
+        <MudText Typo="Typo.h5" Class="font-bold mb-1">إضافة فئة جديدة</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">أدخل بيانات الفئة الجديدة لإضافتها للنظام</MudText>
+    </div>
+
+    <MudPaper Elevation="3" Class="create-form-paper">
+        <MudForm @ref="_form" Model="@_model">
+
+            <MudTextField @bind-Value="_model.Name"
+                          Label="اسم الفئة"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Category"
+                          Required="true"
+                          RequiredError="يرجى إدخال اسم الفئة"
+                          Class="font-cairo" />
+
+            <MudSwitch @bind-Value="_model.IsActive"
+                       Color="Color.Success"
+                       Label="@(_model.IsActive ? "الحالة: نشطة" : "الحالة: غير نشطة")"
+                       Class="mb-4 font-cairo" />
+
+            <MudDivider Class="my-4" />
+
+            <div class="d-flex justify-end gap-2">
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Default"
+                           OnClick="Cancel"
+                           Disabled="@_processing"
+                           Class="font-cairo">
+                    إلغاء
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled"
+                           OnClick="Submit"
+                           Disabled="@_processing"
+                           Class="btn-save shadow-md">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">جاري الحفظ...</MudText>
+                    }
+                    else
+                    {
+                        <MudText>حفظ البيانات</MudText>
+                    }
+                </MudButton>
+            </div>
+
+        </MudForm>
+    </MudPaper>
+
+</MudContainer>

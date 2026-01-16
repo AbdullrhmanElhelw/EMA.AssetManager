@@ -1,0 +1,91 @@
+﻿@page "/assets/details/{Id:guid}"
+@namespace EMA.AssetManager.UI.Pages.Assets
+@using EMA.AssetManager.Domain.Enums
+
+<PageTitle>تفاصيل الأصل</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center mt-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (_asset == null)
+    {
+        <MudAlert Severity="Severity.Error">هذا الأصل غير موجود</MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-4 mb-6" Elevation="3">
+            <div class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.h5" Class="font-bold">@_asset.ItemName</MudText>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">SN: @_asset.SerialNumber</MudText>
+                </div>
+                <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined">@_asset.WarehouseName</MudChip>
+            </div>
+
+            <MudDivider Class="my-3" />
+
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">الباركود</MudText>
+                    <MudText>@(_asset.Barcode ?? "لا يوجد")</MudText>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">الحالة الحالية</MudText>
+                    <MudText Class="font-bold">@_asset.Status.ToString()</MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudText Typo="Typo.h6" Class="mb-4 font-bold">سجل الحركات (Timeline)</MudText>
+
+        @if (_history.Any())
+        {
+            <MudTimeline TimelinePosition="TimelinePosition.Start">
+                @foreach (var item in _history)
+                {
+                    <MudTimelineItem Color="@GetColor(item.TransactionType)" Size="Size.Small" Elevation="2">
+                        <ItemOpposite>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @item.TransactionDate.ToShortDateString()
+                            </MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Style="display:block">
+                                @item.TransactionDate.ToShortTimeString()
+                            </MudText>
+                        </ItemOpposite>
+                        <ItemContent>
+                            <MudPaper Elevation="0" Class="pa-2">
+                                <div class="d-flex align-center gap-2">
+                                    <MudIcon Icon="@GetIcon(item.TransactionType)" Color="@GetColor(item.TransactionType)" Size="Size.Small" />
+                                    <MudText Typo="Typo.subtitle2" Class="font-bold">@GetTitle(item.TransactionType)</MudText>
+                                </div>
+
+                                @if (item.TransactionType == TransactionType.Issue)
+                                {
+                                    <MudText Typo="Typo.body2" Class="mt-1">المستلم: <b>@item.RecipientName</b></MudText>
+                                }
+                                else if (item.TransactionType == TransactionType.Return)
+                                {
+                                    <MudText Typo="Typo.body2" Class="mt-1">تم الإرجاع لمخزن: <b>@item.WarehouseName</b></MudText>
+                                }
+
+                                @if (!string.IsNullOrEmpty(item.Notes))
+                                {
+                                    <MudText Typo="Typo.caption" Class="mt-1 d-block text-muted">"@item.Notes"</MudText>
+                                }
+                            </MudPaper>
+                        </ItemContent>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">لا توجد حركات مسجلة لهذا الجهاز حتى الآن.</MudAlert>
+        }
+    }
+</MudContainer>

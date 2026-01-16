@@ -1,0 +1,505 @@
+﻿/* ============================================
+   متغيرات CSS المخصصة
+============================================ */
+:root {
+    --primary-color: #1E3A2F;
+    --secondary-color: #C5A059;
+    --tertiary-color: #2D4A3E;
+    --background-color: #F8FAF7;
+    --surface-color: #FFFFFF;
+    --drawer-bg: #1A2B26;
+    --text-primary: #1E3A2F;
+    --text-secondary: #5D7A6F;
+    --divider-color: #E0E6E3;
+    --shadow-color: rgba(30, 58, 47, 0.1);
+    --drawer-width: 280px;
+}
+
+/* ============================================
+   إعادة تعيين وتنسيقات عامة
+============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    direction: rtl;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   AppBar عصري
+============================================ */
+.modern-app-bar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--tertiary-color) 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    height: 64px;
+    z-index: 1200 !important;
+}
+
+.app-bar-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary-color);
+    padding: 2px;
+    background: white;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+    .app-bar-logo:hover {
+        transform: scale(1.05);
+    }
+
+.app-title {
+    font-weight: 700 !important;
+    color: white !important;
+    letter-spacing: 0.3px;
+    font-size: 1.1rem !important;
+}
+
+.app-subtitle {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 0.75rem !important;
+    opacity: 0.9;
+}
+
+.menu-btn {
+    margin: 0 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+    .menu-btn:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+/* ============================================
+   أيقونات الإجراءات
+============================================ */
+.action-icons {
+    margin-left: 16px;
+}
+
+.action-btn {
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    width: 36px !important;
+    height: 36px !important;
+}
+
+    .action-btn:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        transform: translateY(-1px);
+    }
+
+.user-menu {
+    margin-right: 8px;
+}
+
+.user-profile-btn {
+    padding: 4px 8px !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+    .user-profile-btn:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+.user-avatar {
+    border: 2px solid var(--secondary-color) !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color)) !important;
+    width: 32px !important;
+    height: 32px !important;
+}
+
+.user-name {
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+}
+
+.user-role {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.75rem !important;
+}
+
+/* ============================================
+   Drawer عصري - مفتوح افتراضياً
+============================================ */
+.modern-drawer {
+    border-left: 1px solid rgba(197, 160, 89, 0.2) !important;
+    background: var(--drawer-bg) !important;
+    transition: all 0.3s ease !important;
+}
+
+.drawer-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* رأس الدراور */
+.drawer-header {
+    padding: 24px 20px 20px;
+    background: linear-gradient(180deg, var(--drawer-bg) 0%, #15201C 100%);
+    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+    text-align: center;
+    position: relative;
+}
+
+.logo-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 16px;
+}
+
+.drawer-logo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--secondary-color);
+    padding: 4px;
+    background: white;
+    object-fit: contain;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease;
+}
+
+    .drawer-logo:hover {
+        transform: rotate(5deg) scale(1.05);
+    }
+
+.logo-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--drawer-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.academy-name {
+    color: var(--secondary-color) !important;
+    font-weight: 700 !important;
+    margin-bottom: 4px !important;
+    font-size: 1.25rem !important;
+}
+
+.academy-motto {
+    color: rgba(255, 255, 255, 0.75) !important;
+    letter-spacing: 1px;
+    font-size: 0.875rem !important;
+}
+
+/* محتوى القائمة */
+.nav-container {
+    flex: 1;
+    padding: 16px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* تذييل الدراور */
+.drawer-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.version-info {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.designer-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    padding: 4px;
+    border-radius: 6px;
+    background: rgba(197, 160, 89, 0.1);
+}
+
+.designer-text {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.75rem !important;
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.5) !important;
+    text-align: center;
+    font-size: 0.7rem !important;
+    margin-top: 8px;
+}
+
+/* ============================================
+   المحتوى الرئيسي مع تعديلات للدراور المفتوح
+============================================ */
+.modern-main-content {
+    background: var(--background-color) !important;
+    min-height: calc(100vh - 64px);
+    padding-top: 16px;
+    transition: all 0.3s ease;
+    margin-right: var(--drawer-width); /* ✅ هامش للدراور المفتوح */
+}
+
+.content-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+    transition: all 0.3s ease;
+}
+
+    .content-wrapper.drawer-closed {
+        margin-right: 0;
+    }
+
+.content-container {
+    min-height: calc(100vh - 96px);
+    border-radius: 12px !important;
+    margin: 16px 0;
+    padding: 24px;
+    background: var(--surface-color) !important;
+    border: 1px solid var(--divider-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: all 0.3s ease;
+}
+
+    .content-container:hover {
+        box-shadow: 0 8px 24px var(--shadow-color);
+    }
+
+/* ============================================
+   تأثيرات الحركة والتفاعل
+============================================ */
+::deep .mud-list-item {
+    transition: all 0.2s ease !important;
+    border-radius: 8px !important;
+    margin: 4px 12px !important;
+}
+
+    ::deep .mud-list-item:hover {
+        transform: translateX(-4px);
+        background: rgba(197, 160, 89, 0.15) !important;
+    }
+
+::deep .mud-list-item-active {
+    background: rgba(197, 160, 89, 0.25) !important;
+    border-right: 3px solid var(--secondary-color) !important;
+}
+
+/* ============================================
+   شريط التمرير المخصص
+============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--divider-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
+
+/* ============================================
+   تحسينات Responsive مع مراعاة الدراور المفتوح
+============================================ */
+@media (max-width: 1280px) {
+    .modern-main-content {
+        margin-right: 240px;
+    }
+
+    :root {
+        --drawer-width: 240px;
+    }
+}
+
+@media (max-width: 960px) {
+    .modern-main-content {
+        margin-right: 0 !important; /* ✅ إزالة الهامش في الشاشات الصغيرة */
+    }
+
+    .app-title {
+        font-size: 1rem !important;
+    }
+
+    .app-subtitle {
+        display: none;
+    }
+
+    .content-wrapper {
+        padding: 0 12px;
+    }
+
+    .content-container {
+        padding: 16px !important;
+        margin: 8px 0 !important;
+        border-radius: 8px !important;
+    }
+
+    .user-name, .user-role {
+        display: none !important;
+    }
+
+    .drawer-header {
+        padding: 20px 16px 16px;
+    }
+
+    .logo-container {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+@media (max-width: 600px) {
+    .modern-app-bar {
+        padding: 0 8px !important;
+    }
+
+    .app-bar-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .action-btn {
+        width: 32px !important;
+        height: 32px !important;
+        margin: 0 2px !important;
+    }
+
+    .content-container {
+        padding: 12px !important;
+        margin: 4px 0 !important;
+    }
+}
+
+/* ============================================
+   تأثيرات التحميل والرسوم المتحركة
+============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.modern-drawer {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ============================================
+   تحسينات الوصول Accessibility
+============================================ */
+:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+    :focus:not(:focus-visible) {
+        outline: none;
+    }
+
+/* ============================================
+   تأثير تغيير حالة الدراور
+============================================ */
+.drawer-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ============================================
+   مؤشر التفاعل مع الدراور
+============================================ */
+.drawer-toggle-indicator {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1199;
+    background: var(--secondary-color);
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: none;
+}
+
+@media (max-width: 960px) {
+    .drawer-toggle-indicator {
+        display: block;
+    }
+}
+
+/* ============================================
+   تحسينات الطباعة
+============================================ */
+@media print {
+    .modern-app-bar,
+    .modern-drawer,
+    .action-icons {
+        display: none !important;
+    }
+
+    .modern-main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .content-container {
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

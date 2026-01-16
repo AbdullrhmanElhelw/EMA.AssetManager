@@ -1,0 +1,30 @@
+﻿/* حاوية الفورم */
+.create-form-paper {
+    padding: 24px;
+    border-radius: 12px;
+    background-color: white;
+    border-top: 4px solid #C5A059; /* الخط الذهبي المميز */
+}
+
+/* تنسيق حقول الإدخال */
+::deep .mud-input-control {
+    margin-bottom: 20px;
+}
+
+/* زرار الحفظ */
+::deep .btn-save {
+    background-color: #3E4B35 !important; /* زيتي */
+    color: white !important;
+    padding: 10px 30px;
+    font-weight: bold;
+    font-family: 'Cairo', sans-serif !important;
+}
+
+    ::deep .btn-save:hover {
+        background-color: #2D3628 !important;
+    }
+
+/* النصوص */
+.font-cairo {
+    font-family: 'Cairo', sans-serif !important;
+}

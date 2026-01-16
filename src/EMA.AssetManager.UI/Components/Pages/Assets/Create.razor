@@ -1,0 +1,103 @@
+﻿@page "/assets/create"
+@using EMA.AssetManager.Domain.Enums
+@namespace EMA.AssetManager.UI.Pages.Assets
+
+<PageTitle>إضافة عهدة جديدة</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid #C5A059;">
+        <div class="mb-6">
+            <MudText Typo="Typo.h5" Class="font-bold">توريد عهدة جديدة</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">تسجيل بيانات السيريال والمخزن وتاريخ الشراء</MudText>
+        </div>
+
+        <MudForm @ref="_form" Model="@_model">
+            <MudGrid>
+
+                <MudItem xs="12" md="6">
+                    <MudSelect T="Guid ?" Label="الصنف" Variant="Variant.Outlined"
+                               @bind-Value="_selectedItemId"
+                               AnchorOrigin="Origin.BottomCenter"
+                               AdornmentIcon="@Icons.Material.Filled.Devices"
+                               Clearable="true"
+                               Placeholder="-- اختر الصنف --"
+                               Required="true" RequiredError="يجب اختيار الصنف">
+
+                        @foreach (var item in _items)
+                        {
+                            // بنعرض الكود جنب الاسم عشان التوضيح
+                            <MudSelectItem Value="@((Guid?)item.Id)">@item.Name (@item.Code)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudSelect T="Guid ?" Label="المخزن المستلم" Variant="Variant.Outlined"
+                               @bind-Value="_selectedWarehouseId"
+                               AnchorOrigin="Origin.BottomCenter"
+                               AdornmentIcon="@Icons.Material.Filled.Store"
+                               Clearable="true"
+                               Placeholder="-- اختر المخزن --"
+                               Required="true" RequiredError="يجب اختيار المخزن">
+
+                        @foreach (var w in _warehouses)
+                        {
+                            <MudSelectItem Value="@((Guid?)w.Id)">@w.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12"><MudDivider /></MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_model.SerialNumber" Label="السيريال نمبر (S/N)" Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.QrCode"
+                                  Required="true" RequiredError="السيريال مطلوب"
+                                  HelperText="يجب أن يكون فريداً وغير مكرر" />
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_model.Barcode" Label="الباركود (اختياري)" Variant="Variant.Outlined"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.QrCodeScanner" />
+                </MudItem>
+
+                <MudItem xs="12" md="4">
+                    <MudSelect T="AssetStatus" Label="الحالة الأولية" Variant="Variant.Outlined"
+                               @bind-Value="_model.Status"
+                               AnchorOrigin="Origin.BottomCenter">
+                        @foreach (AssetStatus status in Enum.GetValues(typeof(AssetStatus)))
+                        {
+                            <MudSelectItem Value="@status">@GetStatusName(status)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" md="4">
+                    <MudDatePicker Label="تاريخ الشراء" Editable="true" @bind-Date="_model.PurchaseDate"
+                                   Variant="Variant.Outlined" Placeholder="يوم/شهر/سنة"
+                                   DisableToolbar="true" />
+                </MudItem>
+
+                <MudItem xs="12" md="4">
+                    <MudDatePicker Label="تاريخ انتهاء الضمان" Editable="true" @bind-Date="_model.ExpiryDate"
+                                   Variant="Variant.Outlined" Placeholder="يوم/شهر/سنة"
+                                   DisableToolbar="true" />
+                </MudItem>
+
+            </MudGrid>
+
+            <MudDivider Class="my-6" />
+
+            <div class="d-flex justify-end gap-2">
+                <MudButton OnClick="Cancel" Variant="Variant.Text">إلغاء</MudButton>
+                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                    }
+                    إضافة العهدة
+                </MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
