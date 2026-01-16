@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_currentTheme" />
+
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudRTLProvider RightToLeft="true" />
+
+<div class="login-bg">
+    @Body
+</div>
+
+@code {
+    private MudBlazor.MudTheme _currentTheme = new MudBlazor.MudTheme()
+    {
+        PaletteLight = new MudBlazor.PaletteLight
+        {
+            Primary = "#1E3A2F",
+            Secondary = "#C5A059",
+            Background = "#F8FAF7",
+            Surface = "#F8FAF7",
+            TextPrimary = "#1E3A2F",
+            TextSecondary = "#5D7A6F"
+        }
+    };
+}

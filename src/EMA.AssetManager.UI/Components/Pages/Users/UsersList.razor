@@ -1,0 +1,48 @@
+﻿@page "/users"
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Services.Dtos.Users
+@inject IUserService UserService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Class="pa-4 mb-4" Elevation="3">
+        <div class="d-flex align-center justify-space-between">
+            <MudText Typo="Typo.h5" Class="font-bold">إدارة مستخدمي النظام</MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="@(() => Navigation.NavigateTo("/users/create"))">
+                إضافة ضابط جديد
+            </MudButton>
+        </div>
+    </MudPaper>
+
+    <MudTable Items="@_users" Dense="true" Hover="true" Bordered="true" Striped="true">
+        <HeaderContent>
+            <MudTh>الرتبة</MudTh>
+            <MudTh>الاسم</MudTh>
+            <MudTh>الرقم العسكري</MudTh>
+            <MudTh>اسم المستخدم</MudTh>
+            <MudTh>الإجراءات</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Rank</MudTd>
+            <MudTd>@context.FullName</MudTd>
+            <MudTd>@context.MilitaryNumber</MudTd>
+            <MudTd>@context.UserName</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<UserDto> _users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _users = await UserService.GetAllUsersAsync();
+    }
+}

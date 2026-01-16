@@ -1,0 +1,32 @@
+﻿@page "/logout"
+@using EMA.AssetManager.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager Navigation
+@inject ILogger<Logout> Logger
+@inject IJSRuntime JS
+
+<div class="d-flex justify-center align-center" style="height: 100vh;">
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    <MudText Typo="Typo.h6" Class="mr-3">جاري تسجيل الخروج...</MudText>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await SignInManager.SignOutAsync();
+            Logger.LogInformation("تم تسجيل الخروج بنجاح");
+
+            // استخدام JavaScript للـ Redirect
+            await JS.InvokeVoidAsync("window.location.href", "/login");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "خطأ أثناء تسجيل الخروج");
+            // حتى لو حصل خطأ، نوجه للـ login
+            await JS.InvokeVoidAsync("window.location.href", "/login");
+        }
+    }
+}

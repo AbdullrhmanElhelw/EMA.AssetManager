@@ -18,4 +18,8 @@
     <ProjectReference Include="..\EMA.AssetManager.Services\EMA.AssetManager.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\Account\" />
+  </ItemGroup>
+
 </Project>

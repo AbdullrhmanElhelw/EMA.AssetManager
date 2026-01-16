@@ -1,0 +1,87 @@
+﻿.login-page-military {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1A2B26, #1E3A2F);
+    font-family: 'Cairo', sans-serif;
+}
+
+.login-card-military {
+    width: 100%;
+    max-width: 380px;
+    padding: 34px 28px;
+    border-radius: 16px;
+    background: #F8FAF7;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    text-align: center;
+    border: 1px solid #E0E6E3;
+    animation: slideDown 0.7s ease;
+}
+
+.login-header-military {
+    margin-bottom: 22px;
+}
+
+.login-logo-military {
+    height: 75px;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.academy-title-military {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1E3A2F;
+}
+
+.system-title-military {
+    margin: 0;
+    font-size: 13px;
+    color: #5D7A6F;
+}
+
+.login-button-military {
+    background: #C5A059;
+    color: #1E3A2F;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.2s ease;
+}
+
+    .login-button-military:hover {
+        background: #b08f4f;
+    }
+
+.login-error-military {
+    margin-top: 12px;
+    color: #B91C1C;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.login-footer-military {
+    margin-top: 22px;
+    font-size: 11px;
+    color: #5D7A6F;
+}
+
+.golden-text {
+    color: #C5A059;
+    font-weight: 600;
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

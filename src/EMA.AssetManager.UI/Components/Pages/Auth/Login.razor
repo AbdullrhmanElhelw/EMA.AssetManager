@@ -1,0 +1,225 @@
+﻿@page "/login"
+@layout LoginLayout
+@using EMA.AssetManager.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager Navigation
+@inject ILogger<Login> Logger
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="login-page-military">
+    <div class="login-card-military animate-slide-down">
+        <!-- Header -->
+        <div class="login-header-military">
+            <img src="/logo.png" class="login-logo-military" alt="شعار الأكاديمية" />
+            <h2 class="academy-title-military">الأكاديمية العسكرية المصرية</h2>
+            <p class="system-title-military">نظام إدارة الأصول</p>
+        </div>
+
+        <!-- Form -->
+        <div class="login-form-military">
+            <MudTextField @bind-Value="_model.UserName"
+                          Label="اسم المستخدم"
+                          Variant="Variant.Outlined"
+                          FullWidth
+                          Class="mb-3"
+                          Color="Color.Primary"
+                          Disabled="_loading"
+                          OnKeyDown="HandleKeyDown"
+                          Immediate="true" />
+
+            <MudTextField @bind-Value="_model.Password"
+                          Label="كلمة المرور"
+                          Variant="Variant.Outlined"
+                          InputType="@_passwordInputType"
+                          FullWidth
+                          Class="mb-3"
+                          Color="Color.Primary"
+                          Disabled="_loading"
+                          OnKeyDown="HandleKeyDown"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@_passwordIcon"
+                          OnAdornmentClick="TogglePasswordVisibility" />
+
+            <MudCheckBox @bind-Value="_model.RememberMe"
+                         Label="تذكرني"
+                         Color="Color.Primary"
+                         Class="mb-3"
+                         Disabled="_loading" />
+
+            <MudButton FullWidth
+                       Class="login-button-military"
+                       OnClick="LoginAsync"
+                       Disabled="_loading">
+                @if (_loading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                    <span class="mr-2">جاري تسجيل الدخول...</span>
+                }
+                else
+                {
+                    <span>تسجيل الدخول</span>
+                }
+            </MudButton>
+
+            @if (!string.IsNullOrWhiteSpace(_error))
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-3" Dense="true">
+                    @_error
+                </MudAlert>
+            }
+
+            @if (_isLockedOut)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-3" Dense="true">
+                    تم قفل حسابك مؤقتاً بسبب محاولات تسجيل دخول فاشلة متعددة. يرجى المحاولة بعد @_lockoutEnd.ToString("HH:mm")
+                </MudAlert>
+            }
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer-military">
+            <span class="golden-text">© @DateTime.Now.Year القوات المسلحة المصرية</span>
+            <div class="login-designer golden-text">
+                إعداد وتصميم ملازم أول / عبدالرحمن الحلو
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel _model = new();
+    private bool _loading = false;
+    private string? _error;
+    private bool _isLockedOut = false;
+    private DateTime _lockoutEnd;
+    private InputType _passwordInputType = InputType.Password;
+    private string _passwordIcon = Icons.Material.Filled.VisibilityOff;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // إذا كان المستخدم مسجل دخول بالفعل، ارسله للصفحة الرئيسية
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+        {
+            await JS.InvokeVoidAsync("window.location.href", "/");
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        if (_passwordInputType == InputType.Password)
+        {
+            _passwordInputType = InputType.Text;
+            _passwordIcon = Icons.Material.Filled.Visibility;
+        }
+        else
+        {
+            _passwordInputType = InputType.Password;
+            _passwordIcon = Icons.Material.Filled.VisibilityOff;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !_loading)
+        {
+            await LoginAsync();
+        }
+    }
+
+    private async Task LoginAsync()
+    {
+        _loading = true;
+        _error = null;
+        _isLockedOut = false;
+
+        try
+        {
+            // Validation
+            if (string.IsNullOrWhiteSpace(_model.UserName))
+            {
+                _error = "يرجى إدخال اسم المستخدم";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_model.Password))
+            {
+                _error = "يرجى إدخال كلمة المرور";
+                return;
+            }
+
+            // Check if user exists first
+            var user = await UserManager.FindByNameAsync(_model.UserName);
+            if (user == null)
+            {
+                _error = "اسم المستخدم أو كلمة المرور غير صحيحة";
+                Logger.LogWarning("فشل تسجيل الدخول: اسم المستخدم '{UserName}' غير موجود", _model.UserName);
+                return;
+            }
+
+            // Check if account is locked out
+            if (await UserManager.IsLockedOutAsync(user))
+            {
+                _isLockedOut = true;
+                _lockoutEnd = (await UserManager.GetLockoutEndDateAsync(user))?.DateTime ?? DateTime.Now;
+                Logger.LogWarning("محاولة تسجيل دخول لحساب مقفل: {UserName}", _model.UserName);
+                return;
+            }
+
+            // Attempt sign in
+            var result = await SignInManager.PasswordSignInAsync(
+                _model.UserName,
+                _model.Password,
+                isPersistent: _model.RememberMe,
+                lockoutOnFailure: true);
+
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("تم تسجيل الدخول بنجاح: {UserName}", _model.UserName);
+
+                // استخدام JavaScript للـ Redirect - الحل الأمثل لـ Blazor Server
+                await JS.InvokeVoidAsync("window.location.href", "/");
+            }
+            else if (result.IsLockedOut)
+            {
+                _isLockedOut = true;
+_lockoutEnd = (await UserManager.GetLockoutEndDateAsync(user))?.DateTime ?? DateTime.Now;
+                Logger.LogWarning("تم قفل الحساب: {UserName}", _model.UserName);
+            }
+            else if (result.IsNotAllowed)
+            {
+                _error = "حسابك غير مفعّل. يرجى التواصل مع المسؤول.";
+                Logger.LogWarning("محاولة تسجيل دخول لحساب غير مفعّل: {UserName}", _model.UserName);
+            }
+            else if (result.RequiresTwoFactor)
+            {
+                // إذا كان عندك Two-Factor Authentication
+                await JS.InvokeVoidAsync("window.location.href", "/login-2fa");
+            }
+            else
+            {
+                _error = "اسم المستخدم أو كلمة المرور غير صحيحة";
+                Logger.LogWarning("فشل تسجيل الدخول: كلمة مرور خاطئة للمستخدم '{UserName}'", _model.UserName);
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.";
+            Logger.LogError(ex, "خطأ أثناء تسجيل الدخول للمستخدم '{UserName}'", _model.UserName);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    class LoginModel
+    {
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool RememberMe { get; set; } = false;
+    }
+}

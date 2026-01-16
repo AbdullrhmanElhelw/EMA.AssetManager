@@ -1,0 +1,26 @@
+﻿@page "/access-denied"
+@layout LoginLayout
+
+<div class="login-page-military">
+    <div class="login-card-military">
+        <div class="text-center pa-6">
+            <MudIcon Icon="@Icons.Material.Filled.Block"
+                     Color="Color.Error"
+                     Size="Size.Large"
+                     Class="mb-4"
+                     Style="font-size: 5rem;" />
+
+            <MudText Typo="Typo.h4" Class="mb-3">الوصول مرفوض</MudText>
+            <MudText Typo="Typo.body1" Class="mb-4">
+                ليس لديك الصلاحيات للوصول إلى هذه الصفحة
+            </MudText>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Href="/"
+                       StartIcon="@Icons.Material.Filled.Home">
+                العودة للصفحة الرئيسية
+            </MudButton>
+        </div>
+    </div>
+</div>
