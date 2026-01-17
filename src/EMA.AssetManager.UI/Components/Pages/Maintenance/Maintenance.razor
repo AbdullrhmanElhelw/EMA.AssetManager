@@ -1,0 +1,118 @@
+﻿@page "/maintenance"
+@using EMA.AssetManager.Services.Dtos.Maintenance
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Enums
+@inject IMaintenanceService MaintenanceService
+@inject NavigationManager Nav
+
+<PageTitle>مركز الصيانة والدعم الفني</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-bold">🛠️ مركز الصيانة</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">متابعة الأعطال والبلاغات الفنية</MudText>
+        </div>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Add" Href="/maintenance/create">بلاغ جديد</MudButton>
+    </div>
+
+    <MudTable Items="@_tickets" Hover="true" Striped="true" Loading="@_loading" Elevation="3" Class="rounded-lg">
+        <HeaderContent>
+            <MudTh>رقم التذكرة</MudTh>
+            <MudTh>الجهاز / الأصل</MudTh>
+            <MudTh>المشكلة</MudTh>
+            <MudTh>الأولوية</MudTh>
+            <MudTh>الحالة</MudTh>
+            <MudTh>تاريخ البلاغ</MudTh>
+            <MudTh>إجراءات</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>#@context.Id.ToString().Substring(0, 4)</MudTd>
+            <MudTd>
+                <MudText Typo="Typo.body2" Class="font-bold">@context.AssetName</MudText>
+                <MudText Typo="Typo.caption">SN: @context.AssetSerialNumber</MudText>
+            </MudTd>
+            <MudTd>
+                <MudText Typo="Typo.body2">@context.Subject</MudText>
+                <MudText Typo="Typo.caption">بواسطة: @context.ReportedBy</MudText>
+            </MudTd>
+            <MudTd>
+                @switch (context.Priority)
+                {
+                    case TicketPriority.Low:
+                        <MudChip T="string" Size="Size.Small" Color="Color.Success">منخفضة</MudChip>
+                        break;
+                    case TicketPriority.Medium:
+                        <MudChip T="string" Size="Size.Small" Color="Color.Info">متوسطة</MudChip>
+                        break;
+                    case TicketPriority.High:
+                        <MudChip T="string" Size="Size.Small" Color="Color.Warning">عالية</MudChip>
+                        break;
+                    case TicketPriority.Critical:
+                        <MudChip T="string" Size="Size.Small" Color="Color.Error">حرجة</MudChip>
+                        break;
+                }
+            </MudTd>
+            <MudTd>
+                @switch (context.Status)
+                {
+                    case TicketStatus.Open:
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error">مفتوحة</MudChip>
+                        break;
+                    case TicketStatus.InProgress:
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning">جاري العمل</MudChip>
+                        break;
+                    case TicketStatus.Resolved:
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Success">تم الإصلاح</MudChip>
+                        break;
+                    case TicketStatus.Unrepairable:
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark">تالف</MudChip>
+                        break;
+                }
+            </MudTd>
+            <MudTd>@context.CreatedAt.ToString("yyyy/MM/dd")</MudTd>
+
+            <MudTd>
+                <div class="d-flex align-center">
+                    <MudTooltip Text="عرض التفاصيل">
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                       Size="Size.Small"
+                                       Color="Color.Info"
+                                       Href="@($"/maintenance/details/{context.Id}")"
+                                       Class="mr-2" />
+                    </MudTooltip>
+
+                    @if (context.Status == TicketStatus.Open || context.Status == TicketStatus.InProgress)
+                    {
+                        <MudTooltip Text="إغلاق التذكرة">
+                            <MudIconButton Icon="@Icons.Material.Filled.CheckCircle"
+                                           Size="Size.Small"
+                                           Color="Color.Success"
+                                           Href="@($"/maintenance/resolve/{context.Id}")" />
+                        </MudTooltip>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.DoneAll" Color="Color.Success" Size="Size.Small" Class="ml-2" />
+                    }
+                </div>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+</MudContainer>
+
+@code {
+    private List<MaintenanceTicketDto> _tickets = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        _tickets = await MaintenanceService.GetAllTicketsAsync();
+        _loading = false;
+    }
+}

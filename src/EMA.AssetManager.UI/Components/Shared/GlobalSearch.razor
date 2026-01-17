@@ -1,0 +1,116 @@
+﻿@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Services.Dtos.Search
+@inject ISearchService SearchService
+@inject NavigationManager Nav
+
+<MudAutocomplete T="SearchResultDto"
+                 Label=""
+                 Placeholder="بحث شامل (سيريال، صيانة، صنف...)"
+                 Value="_selectedResult"
+                 ValueChanged="OnResultSelected"
+                 SearchFunc="@Search"
+                 ToStringFunc="@(e => e == null ? null : $"{e.Title} ({e.Description})")"
+                 Adornment="Adornment.Start"
+                 AdornmentIcon="@Icons.Material.Filled.Search"
+                 Variant="Variant.Outlined"
+                 Margin="Margin.Dense"
+                 Class="glass-search"
+                 ResetValueOnEmptyText="true"
+                 CoerceText="false"
+                 CoerceValue="false"
+                 Clearable="true">
+
+    <ItemTemplate Context="result">
+        <div class="d-flex align-center pa-2">
+            <MudIcon Icon="@result.Icon" Color="Color.Primary" Size="Size.Small" Class="ms-2" />
+            <div class="d-flex flex-column">
+                <MudText Typo="Typo.body2" Class="font-bold">@result.Title</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@result.Type | @result.Description</MudText>
+            </div>
+        </div>
+        <MudDivider />
+    </ItemTemplate>
+
+</MudAutocomplete>
+
+<style>
+    /* تنسيق الزجاج (Glassmorphism)
+           ده هيخلي البحث شكله شيك جداً على الخلفية الموف/الخضراء بتاعتك
+        */
+    .glass-search {
+        background-color: rgba(255, 255, 255, 0.15); /* شفافية */
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .glass-search:hover, .glass-search:focus-within {
+            background-color: rgba(255, 255, 255, 0.25); /* يفتح لما تقف عليه */
+        }
+
+        /* 1. لون النص اللي بتكتبه (أبيض عشان الخلفية غامقة) */
+        .glass-search .mud-input-root {
+            color: white !important;
+        }
+
+        /* 2. لون الـ Placeholder (النص الشفاف) */
+        .glass-search input::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+            opacity: 1;
+        }
+
+        /* 3. لون أيقونة البحث وأيقونة المسح */
+        .glass-search .mud-icon-root {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        /* 4. إلغاء الحدود الرخمة عشان يبقى شكله فلات */
+        .glass-search .mud-input-outlined-border {
+            border-color: transparent !important;
+        }
+
+        /* لما تضغط جوه، نعمل حدود خفيفة */
+        .glass-search.mud-input-control.mud-input-input-control.mud-input-outlined.mud-shrink .mud-input-outlined-border {
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+</style>
+
+@code {
+    private SearchResultDto? _selectedResult;
+
+    private async Task<IEnumerable<SearchResultDto>> Search(string value, CancellationToken token)
+    {
+        // 1. لو مفيش نص، منبحثش
+        if (string.IsNullOrWhiteSpace(value))
+            return new List<SearchResultDto>();
+
+        // 2. تأخير بسيط عشان الأداء
+        await Task.Delay(300, token);
+
+        // 3. استدعاء السيرفس
+        try
+        {
+            return await SearchService.SearchAsync(value);
+        }
+        catch
+        {
+            // لو حصل خطأ نرجع ليست فاضية عشان البرنامج ميعلقش
+            return new List<SearchResultDto>();
+        }
+    }
+
+    private void OnResultSelected(SearchResultDto result)
+    {
+        _selectedResult = result;
+
+        if (result != null && !string.IsNullOrEmpty(result.Url))
+        {
+            // التوجيه للصفحة
+            Nav.NavigateTo(result.Url);
+
+            // تصفير البحث عشان يرجع يكتب تاني لو حب
+            _selectedResult = null;
+            // StateHasChanged مش ضروري هنا لأن الانتقال للصفحة هيعمل ريفرش، بس للأمان:
+            StateHasChanged();
+        }
+    }
+}

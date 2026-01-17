@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EMA.AssetManager.Domain.Migrations
+namespace EMA.AssetManager.Domain.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -39,9 +39,13 @@ namespace EMA.AssetManager.Domain.Migrations
                     CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BranchName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrimaryColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SecondaryColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DrawerBackgroundColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DrawerTextColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LowStockThreshold = table.Column<int>(type: "int", nullable: false),
                     EnableEmailNotifications = table.Column<bool>(type: "bit", nullable: false),
-                    Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -179,6 +183,40 @@ namespace EMA.AssetManager.Domain.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MaintenanceTickets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AssetId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    ReportedBy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    TechnicianNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
+                    StartedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MaintenanceTickets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MaintenanceTickets_Assets_AssetId",
+                        column: x => x.AssetId,
+                        principalTable: "Assets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Assets_Barcode",
                 table: "Assets",
@@ -215,6 +253,11 @@ namespace EMA.AssetManager.Domain.Migrations
                 name: "IX_Items_CategoryId",
                 table: "Items",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MaintenanceTickets_AssetId",
+                table: "MaintenanceTickets",
+                column: "AssetId");
         }
 
         /// <inheritdoc />
@@ -222,6 +265,9 @@ namespace EMA.AssetManager.Domain.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AssetTransactions");
+
+            migrationBuilder.DropTable(
+                name: "MaintenanceTickets");
 
             migrationBuilder.DropTable(
                 name: "SystemSettings");

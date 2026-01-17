@@ -21,4 +21,5 @@ public class AssetDto
     // بيانات المخزن الموجود فيه
     public Guid WarehouseId { get; set; }
     public string WarehouseName { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
 }

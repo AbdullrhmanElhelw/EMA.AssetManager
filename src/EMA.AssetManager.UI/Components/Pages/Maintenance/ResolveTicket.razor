@@ -1,0 +1,65 @@
+﻿@page "/maintenance/resolve/{TicketId:guid}"
+@using EMA.AssetManager.Services.Dtos.Maintenance
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Enums
+@inject IMaintenanceService MaintenanceService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h5" Class="mb-4 font-bold">إغلاق تذكرة الصيانة</MudText>
+
+    <MudPaper Class="pa-6 rounded-lg" Elevation="3">
+        <MudAlert Severity="Severity.Info" Class="mb-4">أنت الآن تقوم بإغلاق التذكرة. سيتم تحديث حالة الجهاز بناءً على اختيارك.</MudAlert>
+
+        <MudForm @ref="_form">
+            <MudTextField @bind-Value="_model.TechnicianNotes" Label="تقرير الفني / الإجراء المتخذ" Variant="Variant.Outlined" Lines="5" Required="true" HelperText="اشرح ما تم إصلاحه بالتفصيل" />
+
+            <MudNumericField @bind-Value="_model.Cost" Label="تكلفة الإصلاح (جنيه)" Variant="Variant.Outlined" Class="mt-4" Min="0" Format="N2" Adornment="Adornment.Start" AdornmentText="EGP" />
+
+            <MudDivider Class="my-4" />
+
+            <MudText Class="mb-2 font-bold">حالة الجهاز النهائية:</MudText>
+            <MudRadioGroup @bind-Value="_model.FinalAssetStatus">
+                <MudRadio Value="AssetStatus.Available" Color="Color.Success">تم الإصلاح بنجاح (إرجاع للمخزن)</MudRadio>
+                <MudRadio Value="AssetStatus.Damaged" Color="Color.Error">تالف / غير قابل للإصلاح (كهنة)</MudRadio>
+            </MudRadioGroup>
+
+            <div class="d-flex justify-end mt-6 gap-4">
+                <MudButton OnClick="GoBack" Variant="Variant.Outlined" Color="Color.Secondary">إلغاء</MudButton>
+                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.CheckCircle">إعتماد وإغلاق</MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter] public Guid TicketId { get; set; }
+
+    private ResolveTicketDto _model = new();
+    private MudForm _form = default!;
+
+    protected override void OnInitialized()
+    {
+        _model.TicketId = TicketId;
+    }
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (_form.IsValid)
+        {
+            if (string.IsNullOrWhiteSpace(_model.TechnicianNotes))
+            {
+                Snackbar.Add("يجب كتابة تقرير الفني", Severity.Error);
+                return;
+            }
+
+            await MaintenanceService.ResolveTicketAsync(_model);
+            Snackbar.Add("تم إغلاق التذكرة بنجاح", Severity.Success);
+            Nav.NavigateTo("/maintenance");
+        }
+    }
+
+    private void GoBack() => Nav.NavigateTo("/maintenance");
+}

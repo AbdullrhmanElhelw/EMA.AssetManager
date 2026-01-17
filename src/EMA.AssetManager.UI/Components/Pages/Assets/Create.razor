@@ -4,29 +4,35 @@
 
 <PageTitle>إضافة عهدة جديدة</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
-    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid #C5A059;">
-        <div class="mb-6">
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4">
+    <div class="d-flex align-center mb-6">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Inherit" OnClick="Cancel" Class="me-3" />
+        <div>
             <MudText Typo="Typo.h5" Class="font-bold">توريد عهدة جديدة</MudText>
             <MudText Typo="Typo.body2" Color="Color.Secondary">تسجيل بيانات السيريال والمخزن وتاريخ الشراء</MudText>
         </div>
+    </div>
 
+    <MudPaper Elevation="3" Class="pa-6 rounded-lg" Style="border-top: 4px solid var(--mud-palette-secondary);">
         <MudForm @ref="_form" Model="@_model">
-            <MudGrid>
+            <MudGrid Spacing="4">
 
                 <MudItem xs="12" md="6">
                     <MudSelect T="Guid ?" Label="الصنف" Variant="Variant.Outlined"
                                @bind-Value="_selectedItemId"
-                               AnchorOrigin="Origin.BottomCenter"
-                               AdornmentIcon="@Icons.Material.Filled.Devices"
+                               AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Devices"
                                Clearable="true"
                                Placeholder="-- اختر الصنف --"
                                Required="true" RequiredError="يجب اختيار الصنف">
-
                         @foreach (var item in _items)
                         {
-                            // بنعرض الكود جنب الاسم عشان التوضيح
-                            <MudSelectItem Value="@((Guid?)item.Id)">@item.Name (@item.Code)</MudSelectItem>
+                            <MudSelectItem Value="@((Guid?)item.Id)">
+                                <div class="d-flex justify-space-between w-100">
+                                    <MudText>@item.Name</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">@item.Code</MudText>
+                                </div>
+                            </MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
@@ -34,12 +40,11 @@
                 <MudItem xs="12" md="6">
                     <MudSelect T="Guid ?" Label="المخزن المستلم" Variant="Variant.Outlined"
                                @bind-Value="_selectedWarehouseId"
-                               AnchorOrigin="Origin.BottomCenter"
-                               AdornmentIcon="@Icons.Material.Filled.Store"
+                               AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Store"
                                Clearable="true"
                                Placeholder="-- اختر المخزن --"
                                Required="true" RequiredError="يجب اختيار المخزن">
-
                         @foreach (var w in _warehouses)
                         {
                             <MudSelectItem Value="@((Guid?)w.Id)">@w.Name</MudSelectItem>
@@ -64,7 +69,8 @@
                 <MudItem xs="12" md="4">
                     <MudSelect T="AssetStatus" Label="الحالة الأولية" Variant="Variant.Outlined"
                                @bind-Value="_model.Status"
-                               AnchorOrigin="Origin.BottomCenter">
+                               AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter"
+                               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Info">
                         @foreach (AssetStatus status in Enum.GetValues(typeof(AssetStatus)))
                         {
                             <MudSelectItem Value="@status">@GetStatusName(status)</MudSelectItem>
@@ -75,12 +81,14 @@
                 <MudItem xs="12" md="4">
                     <MudDatePicker Label="تاريخ الشراء" Editable="true" @bind-Date="_model.PurchaseDate"
                                    Variant="Variant.Outlined" Placeholder="يوم/شهر/سنة"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.CalendarToday"
                                    DisableToolbar="true" />
                 </MudItem>
 
                 <MudItem xs="12" md="4">
                     <MudDatePicker Label="تاريخ انتهاء الضمان" Editable="true" @bind-Date="_model.ExpiryDate"
                                    Variant="Variant.Outlined" Placeholder="يوم/شهر/سنة"
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.VerifiedUser"
                                    DisableToolbar="true" />
                 </MudItem>
 
@@ -89,13 +97,17 @@
             <MudDivider Class="my-6" />
 
             <div class="d-flex justify-end gap-2">
-                <MudButton OnClick="Cancel" Variant="Variant.Text">إلغاء</MudButton>
-                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing">
+                <MudButton OnClick="Cancel" Variant="Variant.Outlined" Color="Color.Secondary">إلغاء</MudButton>
+                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_processing" StartIcon="@Icons.Material.Filled.Save">
                     @if (_processing)
                     {
                         <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                        <span>جاري الحفظ...</span>
                     }
-                    إضافة العهدة
+                    else
+                    {
+                        <text>حفظ وإضافة</text>
+                    }
                 </MudButton>
             </div>
         </MudForm>

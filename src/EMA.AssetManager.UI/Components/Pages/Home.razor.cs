@@ -4,23 +4,24 @@ using MudBlazor;
 
 namespace EMA.AssetManager.UI.Pages;
 
-// لازم الكلاس يكون partial عشان يتربط بملف التصميم
 public partial class Home : ComponentBase
 {
-    // الحقن هنا بيتم عن طريق [Inject] بدل @inject
     [Inject] private IDashboardService DashboardService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
-    // المتغيرات
+    // متغيرات
     private DashboardDto _data = new();
     private bool _isLoading = true;
 
     // إعدادات الرسم البياني
     private double[] _chartData = Array.Empty<double>();
     private string[] _chartLabels = { "متاح", "مستخدم", "صيانة", "تالف" };
+
+    // 🔥 ألوان متناسقة مع الكروت (Success, Info, Warning, Error)
     private ChartOptions _chartOptions = new ChartOptions
     {
-        ChartPalette = new[] { "#00C853", "#2196F3", "#FF9800", "#F44336" }
+        ChartPalette = new[] { "#00C853", "#2196F3", "#FF9800", "#F44336" },
+        LineStrokeWidth = 5
     };
 
     protected override async Task OnInitializedAsync()
@@ -33,10 +34,8 @@ public partial class Home : ComponentBase
         _isLoading = true;
         try
         {
-            // استدعاء الخدمة السريعة (اللي عدلناها في الخطوة السابقة)
             _data = await DashboardService.GetDashboardDataAsync();
 
-            // تجهيز بيانات الرسم البياني
             _chartData = new double[]
             {
                 _data.AssetsAvailable,
@@ -47,7 +46,7 @@ public partial class Home : ComponentBase
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"فشل تحميل الإحصائيات: {ex.Message}", Severity.Error);
+            Snackbar.Add($"حدث خطأ أثناء تحميل البيانات: {ex.Message}", Severity.Error);
         }
         finally
         {

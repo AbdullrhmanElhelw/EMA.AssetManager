@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EMA.AssetManager.Domain.Migrations
+namespace EMA.AssetManager.Domain.Data.Migrations
 {
     [DbContext(typeof(AssertManagerDbContext))]
-    [Migration("20260117131240_InitialCreate")]
+    [Migration("20260117221606_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -244,6 +244,78 @@ namespace EMA.AssetManager.Domain.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.MaintenanceTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Cost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReportedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TechnicianNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.ToTable("MaintenanceTickets");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.SystemSetting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -274,6 +346,14 @@ namespace EMA.AssetManager.Domain.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DrawerBackgroundColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DrawerTextColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("EnableEmailNotifications")
                         .HasColumnType("bit");
 
@@ -291,6 +371,14 @@ namespace EMA.AssetManager.Domain.Migrations
 
                     b.Property<int>("LowStockThreshold")
                         .HasColumnType("int");
+
+                    b.Property<string>("PrimaryColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecondaryColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -393,9 +481,22 @@ namespace EMA.AssetManager.Domain.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.MaintenanceTicket", b =>
+                {
+                    b.HasOne("EMA.AssetManager.Domain.Entities.Asset", "Asset")
+                        .WithMany("MaintenanceTickets")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Asset", b =>
                 {
                     b.Navigation("AssetTransactions");
+
+                    b.Navigation("MaintenanceTickets");
                 });
 
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Category", b =>

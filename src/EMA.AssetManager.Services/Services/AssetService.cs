@@ -16,8 +16,9 @@ public class AssetService : IAssetService
     public async Task<IReadOnlyCollection<AssetDto>> GetAssetsAsync(CancellationToken cancellationToken = default)
     {
         return await _dbContext.Assets
-            .Include(a => a.Item)       // عشان نجيب اسم الصنف
-            .Include(a => a.Warehouse)  // عشان نجيب اسم المخزن
+            .Include(a => a.Item)
+                .ThenInclude(i => i.Category) // 🔥 (1) هام جداً: عشان نجيب الفئة اللي جوه الصنف
+            .Include(a => a.Warehouse)
             .AsNoTracking()
             .OrderByDescending(a => a.CreatedAt)
             .Select(a => new AssetDto
@@ -31,16 +32,20 @@ public class AssetService : IAssetService
                 ItemId = a.ItemId,
                 ItemName = a.Item.Name,
                 ItemCode = a.Item.Code,
+                // 🔥 (2) ربط اسم الفئة
+                CategoryName = a.Item.Category != null ? a.Item.Category.Name : "غير مصنف",
                 WarehouseId = a.WarehouseId,
                 WarehouseName = a.Warehouse.Name
             })
             .ToListAsync(cancellationToken);
     }
 
+    // الدالة الرئيسية لجلب الأصل بالتفاصيل
     public async Task<AssetDto?> GetAssetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var asset = await _dbContext.Assets
             .Include(a => a.Item)
+                .ThenInclude(i => i.Category) // 🔥 ضروري عشان التقرير يقرأ اسم الفئة
             .Include(a => a.Warehouse)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
@@ -57,6 +62,10 @@ public class AssetService : IAssetService
             ItemId = asset.ItemId,
             ItemName = asset.Item.Name,
             ItemCode = asset.Item.Code,
+
+            // 🔥 ربط الفئة هنا عشان الاستيكر والطباعة
+            CategoryName = asset.Item.Category != null ? asset.Item.Category.Name : "غير مصنف",
+
             WarehouseId = asset.WarehouseId,
             WarehouseName = asset.Warehouse.Name
         };
@@ -64,14 +73,12 @@ public class AssetService : IAssetService
 
     public async Task<AssetDto> CreateAssetAsync(CreateAssetDto dto, CancellationToken cancellationToken = default)
     {
-        // 1. التحقق من وجود الصنف والمخزن
         if (!await _dbContext.Items.AnyAsync(i => i.Id == dto.ItemId, cancellationToken))
             throw new Exception("الصنف المختار غير موجود.");
 
         if (!await _dbContext.Warehouses.AnyAsync(w => w.Id == dto.WarehouseId, cancellationToken))
             throw new Exception("المخزن المختار غير موجود.");
 
-        // 2. التحقق من عدم تكرار السيريال أو الباركود
         if (await _dbContext.Assets.AnyAsync(a => a.SerialNumber == dto.SerialNumber, cancellationToken))
             throw new Exception($"السيريال '{dto.SerialNumber}' موجود بالفعل لقطعة أخرى.");
 
@@ -102,7 +109,6 @@ public class AssetService : IAssetService
         var asset = await _dbContext.Assets.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         if (asset == null) throw new Exception("القطعة غير موجودة.");
 
-        // التحقق من تكرار السيريال (لو اتغير)
         if (asset.SerialNumber != dto.SerialNumber && await _dbContext.Assets.AnyAsync(a => a.SerialNumber == dto.SerialNumber, cancellationToken))
             throw new Exception($"السيريال '{dto.SerialNumber}' مستخدم بالفعل.");
 
@@ -111,7 +117,7 @@ public class AssetService : IAssetService
         asset.Status = dto.Status;
         asset.PurchaseDate = dto.PurchaseDate;
         asset.ExpiryDate = dto.ExpiryDate;
-        asset.WarehouseId = dto.WarehouseId; // تحديث المكان
+        asset.WarehouseId = dto.WarehouseId;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return await GetAssetByIdAsync(id, cancellationToken)!;
@@ -126,26 +132,6 @@ public class AssetService : IAssetService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<AssetDto?> GetAssetByIdAsync(Guid id)
-    {
-        var asset = await _dbContext.Assets
-            .Include(a => a.Item)
-            .Include(a => a.Warehouse)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (asset == null)
-            return null;
-
-        return new AssetDto
-        {
-            Id = asset.Id,
-            SerialNumber = asset.SerialNumber,
-            ItemName = asset.Item?.Name ?? "",
-            WarehouseName = asset.Warehouse?.Name ?? "",
-            Status = asset.Status,
-            // ... باقي الخصائص
-        };
-    }
     public async Task UpdateAssetStatusAsync(Guid assetId, AssetStatus newStatus)
     {
         var asset = await _dbContext.Assets.FindAsync(assetId);
@@ -156,4 +142,8 @@ public class AssetService : IAssetService
         }
     }
 
+    public Task<AssetDto?> GetAssetByIdAsync(Guid id)
+    {
+        return GetAssetByIdAsync(id, CancellationToken.None);
+    }
 }

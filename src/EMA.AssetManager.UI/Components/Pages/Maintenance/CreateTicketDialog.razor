@@ -1,0 +1,74 @@
+﻿@page "/maintenance/create"
+@using EMA.AssetManager.Services.Dtos.Maintenance
+@using EMA.AssetManager.Services.Dtos.Assets
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Enums
+@inject IMaintenanceService MaintenanceService
+@inject IAssetService AssetService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h5" Class="mb-4 font-bold">فتح بلاغ صيانة جديد</MudText>
+
+    <MudPaper Class="pa-6 rounded-lg" Elevation="3">
+        <MudForm @ref="_form">
+
+            <MudSelect T="Guid" Label="اختر الأصل المعطل" @bind-Value="_model.AssetId" Variant="Variant.Outlined" Required="true" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var asset in _assets)
+                {
+                    <MudSelectItem Value="@asset.Id">@asset.ItemName - @asset.SerialNumber</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudTextField @bind-Value="_model.Subject" Label="عنوان المشكلة" Variant="Variant.Outlined" Class="mt-4" Required="true" />
+
+            <MudTextField @bind-Value="_model.Description" Label="وصف العطل بالتفصيل" Variant="Variant.Outlined" Lines="4" Class="mt-4" />
+
+            <MudGrid Class="mt-2">
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_model.ReportedBy" Label="اسم المُبلغ" Variant="Variant.Outlined" Required="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect T="TicketPriority" Label="الأهمية" @bind-Value="_model.Priority" Variant="Variant.Outlined">
+                        <MudSelectItem Value="TicketPriority.Low">منخفضة</MudSelectItem>
+                        <MudSelectItem Value="TicketPriority.Medium">متوسطة</MudSelectItem>
+                        <MudSelectItem Value="TicketPriority.High">عالية</MudSelectItem>
+                        <MudSelectItem Value="TicketPriority.Critical">حرجة جداً</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+            <div class="d-flex justify-end mt-6 gap-4">
+                <MudButton OnClick="GoBack" Variant="Variant.Outlined" Color="Color.Secondary">إلغاء</MudButton>
+                <MudButton OnClick="Submit" Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.ReportProblem">فتح البلاغ</MudButton>
+            </div>
+
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private CreateTicketDto _model = new();
+    private MudForm _form = default!;
+    private List<AssetDto> _assets = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allAssets = await AssetService.GetAssetsAsync();
+        _assets = allAssets.ToList();
+    }
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (_form.IsValid)
+        {
+            await MaintenanceService.CreateTicketAsync(_model);
+            Snackbar.Add("تم فتح البلاغ، والجهاز الآن 'تحت الصيانة'", Severity.Warning);
+            Nav.NavigateTo("/maintenance"); // نرجع لصفحة الصيانة
+        }
+    }
+
+    private void GoBack() => Nav.NavigateTo("/maintenance");
+}

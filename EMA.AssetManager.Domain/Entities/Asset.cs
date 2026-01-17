@@ -25,4 +25,5 @@ public class Asset : AuditableEntity<Guid>
     public Warehouse Warehouse { get; set; } = default!;
 
     public ICollection<AssetTransaction> AssetTransactions { get; set; } = [];
+    public ICollection<MaintenanceTicket> MaintenanceTickets { get; set; } = [];
 }

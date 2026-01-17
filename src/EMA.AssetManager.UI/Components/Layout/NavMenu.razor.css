@@ -1,317 +1,189 @@
 ﻿/* ============================================
-   متغيرات القائمة الجانبية
+   Variables & Theme
 ============================================ */
 :root {
     --nav-bg: #1A2B26;
-    --nav-text: #E8F0EE;
-    --nav-hover-bg: rgba(197, 160, 89, 0.15);
-    --nav-active-bg: rgba(197, 160, 89, 0.25);
-    --nav-active-border: #C5A059;
-    --nav-section-bg: rgba(0, 0, 0, 0.15);
-    --nav-section-expanded-bg: rgba(0, 0, 0, 0.25);
-    --nav-icon-size: 1.25rem;
-    --nav-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --nav-text-primary: #ECEFF1;
+    --nav-text-secondary: rgba(255, 255, 255, 0.6);
+    --accent-gold: #C5A059;
+    --accent-gold-glow: rgba(197, 160, 89, 0.4);
+    --section-bg: rgba(255, 255, 255, 0.03);
+    --section-hover: rgba(255, 255, 255, 0.06);
+    --item-hover: rgba(197, 160, 89, 0.15);
+    --item-active-bg: linear-gradient(90deg, rgba(197, 160, 89, 0.2) 0%, transparent 100%);
+    --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ============================================
-   القائمة الجانبية الرئيسية
-============================================ */
 .modern-nav-menu {
-    background: transparent !important;
-    padding: 16px 0 !important;
+    padding: 12px 8px !important;
+    font-family: 'Cairo', sans-serif;
 }
 
 /* ============================================
-   أقسام القائمة (Accordion)
+   Navigation Sections (Accordion)
 ============================================ */
 .nav-section {
     margin-bottom: 8px;
     border-radius: 8px;
-    overflow: hidden;
-    background: var(--nav-section-bg);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: var(--nav-transition);
+    background: transparent;
+    transition: var(--transition-standard);
+    border: 1px solid transparent;
 }
 
-    /* تأثير عند فتح القسم */
-    .nav-section:has(.section-content) {
-        background: var(--nav-section-expanded-bg);
-        border-color: rgba(197, 160, 89, 0.2);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Active State for Section Container */
+    .nav-section.expanded {
+        background: var(--section-bg);
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
 .section-header {
     padding: 12px 16px;
     cursor: pointer;
-    transition: var(--nav-transition);
-    user-select: none;
+    border-radius: 8px;
+    transition: var(--transition-standard);
+    position: relative;
+    overflow: hidden;
 }
 
     .section-header:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--section-hover);
     }
 
     .section-header:active {
-        transform: scale(0.98);
-    }
-
-    .section-header .mud-icon-root {
-        color: var(--nav-active-border) !important;
-        transition: var(--nav-transition);
+        transform: scale(0.99);
     }
 
 .section-title {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--nav-text-primary) !important;
     font-weight: 600 !important;
-    font-size: 0.9rem !important;
+    font-size: 0.95rem !important;
     letter-spacing: 0.5px;
 }
 
-/* تأثير للعنوان عندما يكون القسم مفتوح */
-.nav-section:has(.section-content) .section-title {
-    color: var(--nav-active-border) !important;
+.header-icon {
+    color: var(--nav-text-secondary) !important;
+    transition: var(--transition-standard);
+}
+
+/* Icon Highlight when expanded */
+.nav-section.expanded .header-icon {
+    color: var(--accent-gold) !important;
+    filter: drop-shadow(0 0 5px var(--accent-gold-glow));
+}
+
+.nav-section.expanded .section-title {
+    color: #FFFFFF !important;
+}
+
+.expand-icon {
+    color: var(--nav-text-secondary);
 }
 
 /* ============================================
-   محتوى القسم مع Animation
+   Links & Content
 ============================================ */
 .section-content {
-    padding: 0;
-    max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-}
-
-/* عندما يكون القسم مفتوح */
-.nav-section:has(.animated-section) .section-content {
-    padding: 8px 0;
-    max-height: 500px;
-    animation: slideDown 0.3s ease-out;
 }
 
 .animated-section {
-    animation: fadeIn 0.3s ease-out;
+    animation: slideIn 0.3s ease-out forwards;
+    padding: 4px 0 8px 0;
 }
 
-/* ============================================
-   روابط القائمة
-============================================ */
 ::deep .mud-nav-link {
-    color: var(--nav-text) !important;
-    border-radius: 0 !important;
-    margin: 2px 8px !important;
-    padding: 10px 16px !important;
-    transition: var(--nav-transition) !important;
+    color: var(--nav-text-secondary) !important;
+    font-size: 0.85rem !important;
+    padding: 10px 16px 10px 24px !important; /* Indented */
+    margin: 2px 0 !important;
+    border-radius: 0 8px 8px 0 !important;
     border-right: 3px solid transparent !important;
-    font-family: 'Cairo', sans-serif !important;
-    font-size: 0.875rem !important;
-    opacity: 0.9;
-    transform: translateX(0);
+    transition: var(--transition-standard) !important;
 }
 
     ::deep .mud-nav-link:hover {
-        background-color: var(--nav-hover-bg) !important;
-        color: #FFD700 !important;
-        transform: translateX(-4px);
-        opacity: 1;
+        color: #FFF !important;
+        background-color: var(--item-hover) !important;
+        padding-right: 32px !important; /* Slide effect */
     }
 
     ::deep .mud-nav-link.active-nav-link {
-        background: linear-gradient(90deg, var(--nav-active-bg) 0%, transparent 100%) !important;
-        color: var(--nav-active-border) !important;
-        border-right: 3px solid var(--nav-active-border) !important;
-        font-weight: 600 !important;
-        opacity: 1;
-        box-shadow: inset 0 0 20px rgba(197, 160, 89, 0.1);
+        color: var(--accent-gold) !important;
+        background: var(--item-active-bg) !important;
+        border-right-color: var(--accent-gold) !important;
+        font-weight: 700 !important;
     }
 
-    /* ============================================
-   أيقونات الروابط
-============================================ */
+    /* Icon styles inside links */
     ::deep .mud-nav-link .mud-icon-root {
-        color: inherit !important;
+        font-size: 1.2rem !important;
         margin-left: 12px !important;
-        margin-right: 0 !important;
-        font-size: var(--nav-icon-size) !important;
-        transition: transform 0.3s ease !important;
-    }
-
-    ::deep .mud-nav-link:hover .mud-icon-root {
-        transform: scale(1.1);
+        color: inherit !important;
+        opacity: 0.8;
     }
 
 /* ============================================
-   قسم الوصول السريع
+   Quick Access Area
 ============================================ */
 .quick-access {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
     padding: 16px 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    margin-top: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
 }
 
 .quick-action-btn {
-    margin: 4px !important;
-    border: 1px solid rgba(197, 160, 89, 0.3) !important;
-    transition: var(--nav-transition) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--nav-text-secondary) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    transition: var(--transition-standard) !important;
+    border-radius: 8px !important;
+    height: 40px !important;
+    width: 40px !important;
 }
 
     .quick-action-btn:hover {
-        background: rgba(197, 160, 89, 0.2) !important;
-        border-color: var(--nav-active-border) !important;
-        transform: translateY(-2px) scale(1.1);
+        color: var(--accent-gold) !important;
+        border-color: var(--accent-gold) !important;
+        background: rgba(197, 160, 89, 0.1) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
 /* ============================================
-   الرسوم المتحركة (Animations)
+   Footer & Developer Badge
 ============================================ */
-@keyframes fadeIn {
+.developer-badge {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(45deg, rgba(197, 160, 89, 0.1), transparent);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+    color: var(--accent-gold) !important;
+    transition: var(--transition-standard);
+}
+
+    .developer-badge:hover {
+        background: rgba(197, 160, 89, 0.15);
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 10px var(--accent-gold-glow);
+        cursor: default;
+    }
+
+/* ============================================
+   Animations
+============================================ */
+@keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-5px);
     }
 
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        max-height: 500px;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-::deep .mud-nav-link.active-nav-link .mud-icon-root {
-    animation: pulse 2s infinite;
-}
-
-/* ============================================
-   مؤشر القسم النشط
-============================================ */
-.nav-section:has(.section-content)::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    background: var(--nav-active-border);
-    border-radius: 0 3px 3px 0;
-}
-
-/* ============================================
-   تحسينات Responsive
-============================================ */
-@media (max-width: 960px) {
-    .modern-nav-menu {
-        padding: 12px 0 !important;
-    }
-
-    .nav-section {
-        margin-bottom: 6px;
-        border-radius: 6px;
-    }
-
-    .section-header {
-        padding: 10px 12px;
-    }
-
-    .section-title {
-        font-size: 0.85rem !important;
-    }
-
-    ::deep .mud-nav-link {
-        padding: 8px 12px !important;
-        margin: 1px 6px !important;
-        font-size: 0.8rem !important;
-    }
-
-    .quick-access {
-        padding: 12px 8px;
-        margin-top: 16px;
-    }
-
-    .quick-action-btn {
-        margin: 2px !important;
-        width: 32px !important;
-        height: 32px !important;
-    }
-}
-
-/* ============================================
-   تحسينات الظلام (Dark Mode Support)
-============================================ */
-@media (prefers-color-scheme: dark) {
-    .nav-section {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-        .nav-section:has(.section-content) {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-    ::deep .mud-nav-link {
-        color: #FFFFFF !important;
-    }
-
-    .quick-access {
-        background: rgba(255, 255, 255, 0.05);
-    }
-}
-
-/* ============================================
-   تأثيرات إضافية
-============================================ */
-/* تأثير عند تحويل المؤشر */
-.section-header {
-    position: relative;
-}
-
-    .section-header::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        width: 0;
-        height: 2px;
-        background: var(--nav-active-border);
-        transition: width 0.3s ease;
-    }
-
-    .section-header:hover::after {
-        width: 100%;
-    }
-
-/* ============================================
-   تحسينات للطباعة
-============================================ */
-@media print {
-    .modern-nav-menu {
-        display: none !important;
     }
 }

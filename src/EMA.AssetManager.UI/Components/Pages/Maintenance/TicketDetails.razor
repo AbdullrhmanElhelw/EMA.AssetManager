@@ -1,0 +1,108 @@
+﻿@page "/maintenance/details/{TicketId:guid}"
+@using EMA.AssetManager.Services.Dtos.Maintenance
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Enums
+@inject IMaintenanceService MaintenanceService
+@inject NavigationManager Nav
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+
+    <MudButton StartIcon="@Icons.Material.Filled.ArrowForward" OnClick="GoBack" Class="mb-4">عودة للقائمة</MudButton>
+
+    @if (_ticket == null)
+    {
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+    }
+    else
+    {
+        <MudPaper Elevation="3" Class="pa-6 rounded-lg relative">
+
+            <div class="d-flex justify-space-between align-center mb-6">
+                <div>
+                    <MudText Typo="Typo.h5" Class="font-bold">تذكرة صيانة #@_ticket.Id.ToString().Substring(0, 4)</MudText>
+                    <MudText Typo="Typo.caption">تاريخ البلاغ: @_ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</MudText>
+                </div>
+                <div>
+                    @switch (_ticket.Status)
+                    {
+                        case TicketStatus.Open:
+                            <MudChip T="string" Color="Color.Error" Variant="Variant.Filled">مفتوحة</MudChip>
+                            break;
+                        case TicketStatus.InProgress:
+
+                            <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled">جاري العمل</MudChip>
+                            break;
+                        case TicketStatus.Resolved:
+
+                            <MudChip T="string" Color="Color.Success" Variant="Variant.Filled">تم الإصلاح</MudChip>
+                            break;
+                        case TicketStatus.Unrepairable:
+
+                            <MudChip T="string" Color="Color.Dark" Variant="Variant.Filled">تالف / كهنة</MudChip>
+                            break;
+                    }
+                </div>
+            </div>
+
+            <MudDivider Class="my-4" />
+
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">الجهاز / الأصل</MudText>
+                    <MudText Typo="Typo.body1" Class="font-bold">@_ticket.AssetName</MudText>
+                    <MudText Typo="Typo.body2">S/N: @_ticket.AssetSerialNumber</MudText>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">المُبلغ</MudText>
+                    <MudText Typo="Typo.body1">@_ticket.ReportedBy</MudText>
+                    <MudText Typo="Typo.body2">الأهمية: @_ticket.Priority</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+                        <MudText Typo="Typo.subtitle2" Class="font-bold text-decoration-underline">وصف المشكلة:</MudText>
+                        <MudText>@_ticket.Subject</MudText>
+                        <MudText Typo="Typo.body2" Class="mt-1">@_ticket.Description</MudText>
+                    </MudAlert>
+                </MudItem>
+
+                @if (_ticket.Status == TicketStatus.Resolved || _ticket.Status == TicketStatus.Unrepairable)
+                {
+                    <MudItem xs="12">
+                        <MudDivider Class="my-4" />
+                        <MudText Typo="Typo.h6" Class="mb-2 font-bold">تقرير الإغلاق</MudText>
+                    </MudItem>
+
+                    <MudItem xs="12" md="8">
+                        <MudPaper Class="pa-4 bg-gray-100" Elevation="0" Outlined="true">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Success" Class="font-bold">تقرير الفني:</MudText>
+                            <MudText>@(_ticket.TechnicianNotes ?? "لا يوجد ملاحظات")</MudText>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudPaper Class="pa-4 d-flex flex-column align-center justify-center border-dashed border-2 border-success" Elevation="0">
+                            <MudText Typo="Typo.subtitle2">تكلفة الإصلاح</MudText>
+                            <MudText Typo="Typo.h4" Color="Color.Success" Class="font-bold">@_ticket.Cost.ToString("N0")</MudText>
+                            <MudText Typo="Typo.caption">جنية مصري</MudText>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public Guid TicketId { get; set; }
+    private MaintenanceTicketDto? _ticket;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ticket = await MaintenanceService.GetTicketByIdAsync(TicketId);
+    }
+
+    private void GoBack() => Nav.NavigateTo("/maintenance");
+}3

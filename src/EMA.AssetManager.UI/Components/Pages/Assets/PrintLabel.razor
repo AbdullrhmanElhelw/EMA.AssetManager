@@ -1,28 +1,14 @@
 ﻿@page "/assets/print/{Id:guid}"
 @using EMA.AssetManager.Services.Dtos.Assets
 @using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Entities
 @inject IAssetService AssetService
+@inject ISettingsService SettingsService
 @inject QrCodeService QrService
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 
-<PageTitle>طباعة الملصق</PageTitle>
-
-<style>
-    @@media print {
-        .no-print {
-            display: none !important;
-        }
-
-        body {
-            background-color: white;
-        }
-
-        .print-container {
-            border: none !important;
-        }
-    }
-</style>
+<PageTitle>طباعة ملصق العهدة</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8 d-flex flex-column align-center">
 
@@ -32,29 +18,45 @@
     }
     else if (_asset == null)
     {
-        <MudAlert Severity="Severity.Error">الأصل غير موجود</MudAlert>
+        <MudAlert Severity="Severity.Error">هذا الأصل غير موجود.</MudAlert>
         <MudButton Variant="Variant.Text" OnClick="GoBack" Class="mt-4">عودة</MudButton>
     }
     else
     {
-        <MudPaper Class="print-container pa-4 d-flex flex-column align-center justify-center mb-6"
-                  Elevation="4"
-                  Style="width: 350px; height: 350px; border: 2px dashed #333;">
+        <MudText Typo="Typo.h5" Class="mb-4 no-print font-bold" Color="Color.Primary">معاينة الملصق</MudText>
 
-            <MudText Typo="Typo.h5" Class="font-bold mb-2">@_asset.ItemName</MudText>
+        <div id="printableArea" class="label-container">
+            <div class="label-header">
+                <span class="company-name">@_settings.CompanyName</span>
+                <span class="branch-name">@_settings.BranchName</span>
+            </div>
 
-            @if (!string.IsNullOrEmpty(_qrImage))
-            {
-                <img src="@_qrImage" style="width: 200px; height: 200px;" />
-            }
+            <div class="label-body">
+                <div class="info-section">
+                    <img src="@(_settings.LogoPath ?? "/logo.png")" class="label-logo" />
+                    <div class="item-details">
+                        <span class="item-name">@_asset.ItemName</span>
+                        <span class="item-category">@_asset.CategoryName</span>
+                    </div>
+                </div>
 
-            <MudText Typo="Typo.h6" Class="font-bold mt-2">@_asset.SerialNumber</MudText>
-            <MudText Typo="Typo.caption">EMA Asset Management</MudText>
-        </MudPaper>
+                <div class="qr-section">
+                    <img src="@_qrImage" class="qr-img" />
+                    <span class="serial-number">@_asset.SerialNumber</span>
+                </div>
+            </div>
 
-        <div class="no-print d-flex gap-4">
-            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="GoBack">رجوع للقائمة</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintNow">طباعة الآن</MudButton>
+            <div class="label-footer">
+                EMA Asset System - @_asset.Id.ToString().Substring(0, 8)
+            </div>
+        </div>
+        <div class="no-print mt-8 d-flex gap-4">
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="GoBack">رجوع</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Print"
+                       Size="Size.Large"
+                       OnClick="PrintNow">طباعة الملصق</MudButton>
         </div>
     }
 
@@ -64,6 +66,7 @@
     [Parameter] public Guid Id { get; set; }
 
     private AssetDto? _asset;
+    private SystemSetting _settings = new();
     private string _qrImage = "";
     private bool _isLoading = true;
 
@@ -71,33 +74,183 @@
     {
         try
         {
-            // نجيب بيانات الأصل
+            _settings = await SettingsService.GetSettingsAsync();
             _asset = await AssetService.GetAssetByIdAsync(Id);
 
             if (_asset != null)
             {
-                // نولد الصورة
-                _qrImage = QrService.GenerateQrCode(_asset.SerialNumber);
+                // توليد محتوى الباركود (ممكن تغيره لرابط أو بيانات JSON)
+                string content = $"{_asset.SerialNumber}";
+                _qrImage = QrService.GenerateQrCode(content);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // تجاهل الأخطاء حالياً
+            Console.WriteLine(ex.Message);
         }
-        finally
-        {
-            _isLoading = false;
-        }
+        finally { _isLoading = false; }
     }
 
     private async Task PrintNow()
     {
-        // أمر الطباعة المباشر من المتصفح
         await JS.InvokeVoidAsync("print");
     }
 
-    private void GoBack()
-    {
-        Nav.NavigateTo("/assets");
-    }
+    private void GoBack() => Nav.NavigateTo("/assets");
 }
+
+<style>
+    /* =================================
+           تنسيقات الطباعة (Label CSS)
+           ================================= */
+    .label-container {
+        width: 80mm;
+        height: 50mm;
+        border: 2px solid #000;
+        background: white;
+        padding: 2mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-family: 'Cairo', sans-serif;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin: 0 auto; /* توسيط في العرض العادي */
+    }
+
+    .label-header {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 2px;
+    }
+
+    .company-name {
+        display: block;
+        font-weight: 800;
+        font-size: 10pt;
+    }
+
+    .branch-name {
+        display: block;
+        font-size: 7pt;
+    }
+
+    .label-body {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        padding: 2mm 0;
+    }
+
+    .info-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-right: 1px dashed #ccc;
+    }
+
+    .label-logo {
+        width: 12mm;
+        height: 12mm;
+        object-fit: contain;
+        margin-bottom: 2mm;
+    }
+
+    .item-name {
+        font-weight: bold;
+        font-size: 9pt;
+        line-height: 1.1;
+    }
+
+    .item-category {
+        font-size: 7pt;
+        color: #555;
+    }
+
+    .qr-section {
+        width: 32mm;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .qr-img {
+        width: 28mm;
+        height: 28mm;
+    }
+
+    .serial-number {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 8pt;
+        letter-spacing: 1px;
+    }
+
+    .label-footer {
+        font-size: 6pt;
+        text-align: center;
+        border-top: 1px solid #000;
+        padding-top: 1px;
+    }
+
+    /* =================================
+           إعدادات مخصصة للطباعة (Print Media)
+           ================================= */
+    @@media print {
+        @@page {
+            size: auto;
+            margin: 0mm;
+        }
+
+        body {
+            background-color: white;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            /* توسيط الاستيكر في نص ورقة الطباعة */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* ❌ التعديل هنا: شيلنا .mud-layout من القائمة دي */
+        .mud-appbar,
+        .mud-drawer,
+        .no-print {
+            display: none !important;
+        }
+        /* ✅ التعديل هنا: بنجبر الحاويات الرئيسية تظهر وتلغي الهوامش */
+        .mud-layout,
+        .mud-main-content {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+        /* نخفي أي حاجة تانية في الصفحة */
+        .mud-container {
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            height: 100% !important;
+        }
+
+        .label-container {
+            border: 1px solid #000;
+            box-shadow: none;
+            page-break-inside: avoid;
+            /* نتأكد إن الاستيكر ظاهر */
+            visibility: visible !important;
+        }
+    }
+</style>

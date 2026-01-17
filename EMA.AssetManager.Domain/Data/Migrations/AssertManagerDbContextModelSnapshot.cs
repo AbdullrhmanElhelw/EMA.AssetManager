@@ -4,19 +4,16 @@ using EMA.AssetManager.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EMA.AssetManager.Domain.Migrations
+namespace EMA.AssetManager.Domain.Data.Migrations
 {
     [DbContext(typeof(AssertManagerDbContext))]
-    [Migration("20260117133549_AddDrawer")]
-    partial class AddDrawer
+    partial class AssertManagerDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,6 +241,78 @@ namespace EMA.AssetManager.Domain.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.MaintenanceTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Cost")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReportedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TechnicianNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.ToTable("MaintenanceTickets");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.SystemSetting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -292,6 +361,9 @@ namespace EMA.AssetManager.Domain.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogoPath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("LowStockThreshold")
@@ -406,9 +478,22 @@ namespace EMA.AssetManager.Domain.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.MaintenanceTicket", b =>
+                {
+                    b.HasOne("EMA.AssetManager.Domain.Entities.Asset", "Asset")
+                        .WithMany("MaintenanceTickets")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Asset");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Asset", b =>
                 {
                     b.Navigation("AssetTransactions");
+
+                    b.Navigation("MaintenanceTickets");
                 });
 
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Category", b =>

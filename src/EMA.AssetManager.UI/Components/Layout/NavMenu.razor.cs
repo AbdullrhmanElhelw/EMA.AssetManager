@@ -7,17 +7,17 @@ public partial class NavMenu : ComponentBase
     [Parameter]
     public bool IsDrawerOpen { get; set; } = true;
 
-    // حالة فتح القوائم (الرئيسية مفتوحة افتراضياً)
+    // Menu States
     private bool _isDashboardExpanded = true;
-    private bool _isDefinitionsExpanded = false; // قسم التعريفات
-    private bool _isOperationsExpanded = false;  // قسم العمليات
-    private bool _isReportsExpanded = false;     // قسم التقارير
+    private bool _isDefinitionsExpanded = false;
+    private bool _isOperationsExpanded = false;
+    private bool _isReportsExpanded = false;
 
-    // أنماط الأيقونات (حركة الدوران للسهم)
-    private string DashboardIconStyle => $"transform: {(_isDashboardExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
-    private string DefinitionsIconStyle => $"transform: {(_isDefinitionsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
-    private string OperationsIconStyle => $"transform: {(_isOperationsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
-    private string ReportsIconStyle => $"transform: {(_isReportsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
+    // Icon Rotations
+    private string DashboardIconStyle => $"transform: {(_isDashboardExpanded ? "rotate(0deg)" : "rotate(90deg)")}; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);";
+    private string DefinitionsIconStyle => $"transform: {(_isDefinitionsExpanded ? "rotate(0deg)" : "rotate(90deg)")}; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);";
+    private string OperationsIconStyle => $"transform: {(_isOperationsExpanded ? "rotate(0deg)" : "rotate(90deg)")}; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);";
+    private string ReportsIconStyle => $"transform: {(_isReportsExpanded ? "rotate(0deg)" : "rotate(90deg)")}; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);";
 
     private void ToggleDashboardSection()
     {
@@ -43,7 +43,6 @@ public partial class NavMenu : ComponentBase
         if (_isReportsExpanded) CollapseOtherSections("reports");
     }
 
-    // دالة مساعدة لغلق باقي الأقسام عند فتح قسم جديد (للحفاظ على نظافة القائمة)
     private void CollapseOtherSections(string currentSection)
     {
         if (currentSection != "dashboard") _isDashboardExpanded = false;

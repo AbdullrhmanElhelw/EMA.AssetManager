@@ -1,113 +1,112 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@inject NavigationManager Navigation
+﻿@inject NavigationManager Navigation
 
 <MudNavMenu Class="modern-nav-menu">
 
-    <div class="nav-section">
+    <div class="nav-section @(_isDashboardExpanded ? "expanded" : "")">
         <div class="section-header" @onclick="ToggleDashboardSection">
             <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center">
-                    <MudIcon Icon="@Icons.Material.Filled.Home" Size="Size.Small" Class="me-2" />
+                    <MudIcon Icon="@Icons.Material.Filled.Home" Size="Size.Small" Class="header-icon me-3" />
                     <MudText Typo="Typo.subtitle2" Class="section-title">الرئيسية</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Style="@DashboardIconStyle" />
+                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Class="expand-icon" Style="@DashboardIconStyle" />
             </div>
         </div>
 
         @if (_isDashboardExpanded)
         {
             <div class="section-content animated-section">
-                <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     لوحة القيادة
                 </MudNavLink>
             </div>
         }
     </div>
 
-    <div class="nav-section">
+    <div class="nav-section @(_isDefinitionsExpanded ? "expanded" : "")">
         <div class="section-header" @onclick="ToggleDefinitionsSection">
             <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center">
-                    <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Small" Class="me-2" />
+                    <MudIcon Icon="@Icons.Material.Filled.Category" Size="Size.Small" Class="header-icon me-3" />
                     <MudText Typo="Typo.subtitle2" Class="section-title">التعريفات والمخازن</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Style="@DefinitionsIconStyle" />
+                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Class="expand-icon" Style="@DefinitionsIconStyle" />
             </div>
         </div>
 
         @if (_isDefinitionsExpanded)
         {
             <div class="section-content animated-section">
-                <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Class" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/categories" Icon="@Icons.Material.Filled.Class" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     الفئات والتصنيفات
                 </MudNavLink>
 
-                <MudNavLink Href="/items" Icon="@Icons.Material.Filled.Devices" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/items" Icon="@Icons.Material.Filled.Devices" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     سجل الأصناف
                 </MudNavLink>
 
-                <MudNavLink Href="/warehouses" Icon="@Icons.Material.Filled.Store" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/warehouses" Icon="@Icons.Material.Filled.Store" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     إدارة المخازن
                 </MudNavLink>
             </div>
         }
     </div>
 
-    <div class="nav-section">
+    <div class="nav-section @(_isOperationsExpanded ? "expanded" : "")">
         <div class="section-header" @onclick="ToggleOperationsSection">
             <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center">
-                    <MudIcon Icon="@Icons.Material.Filled.Work" Size="Size.Small" Class="me-2" />
+                    <MudIcon Icon="@Icons.Material.Filled.Work" Size="Size.Small" Class="header-icon me-3" />
                     <MudText Typo="Typo.subtitle2" Class="section-title">العمليات والعهد</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Style="@OperationsIconStyle" />
+                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Class="expand-icon" Style="@OperationsIconStyle" />
             </div>
         </div>
 
         @if (_isOperationsExpanded)
         {
             <div class="section-content animated-section">
-                <MudNavLink Href="/assets" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.QrCodeScanner" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/assets" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.QrCodeScanner" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     سجل العهدة والأصول
                 </MudNavLink>
 
-                <MudNavLink Href="/assets/import" Icon="@Icons.Material.Filled.UploadFile" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/assets/import" Icon="@Icons.Material.Filled.UploadFile" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     استيراد من إكسيل
                 </MudNavLink>
 
-                <MudNavLink Href="/transactions" Icon="@Icons.Material.Filled.SwapHoriz" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/transactions" Icon="@Icons.Material.Filled.SwapHoriz" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     حركة الصرف والإرجاع
                 </MudNavLink>
 
-                <MudNavLink Href="/maintenance" Icon="@Icons.Material.Filled.Build" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/maintenance" Icon="@Icons.Material.Filled.Build" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     الصيانة والدعم الفني
                 </MudNavLink>
             </div>
         }
     </div>
 
-    <div class="nav-section">
+    <div class="nav-section @(_isReportsExpanded ? "expanded" : "")">
         <div class="section-header" @onclick="ToggleReportsSection">
             <div class="d-flex align-center justify-space-between w-100">
                 <div class="d-flex align-center">
-                    <MudIcon Icon="@Icons.Material.Filled.SettingsSuggest" Size="Size.Small" Class="me-2" />
+                    <MudIcon Icon="@Icons.Material.Filled.SettingsSuggest" Size="Size.Small" Class="header-icon me-3" />
                     <MudText Typo="Typo.subtitle2" Class="section-title">التقارير والإدارة</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Style="@ReportsIconStyle" />
+                <MudIcon Icon="@Icons.Material.Filled.ExpandMore" Size="Size.Small" Class="expand-icon" Style="@ReportsIconStyle" />
             </div>
         </div>
 
         @if (_isReportsExpanded)
         {
             <div class="section-content animated-section">
-                <MudNavLink Href="/reports" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/reports" Icon="@Icons.Material.Filled.Assessment" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     مركز التقارير
                 </MudNavLink>
 
-                <MudNavLink Href="/users" Icon="@Icons.Material.Filled.SupervisedUserCircle" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/users" Icon="@Icons.Material.Filled.SupervisedUserCircle" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     إدارة المستخدمين
                 </MudNavLink>
-                <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Secondary" ActiveClass="active-nav-link">
+                <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings" IconColor="Color.Inherit" ActiveClass="active-nav-link">
                     إعدادات النظام
                 </MudNavLink>
             </div>
@@ -117,25 +116,43 @@
     <MudDivider Class="my-4" Style="border-color: rgba(197, 160, 89, 0.2);" />
 
     <div class="quick-access">
-        <MudText Typo="Typo.caption" Class="px-4 mb-2" Style="color: rgba(255, 255, 255, 0.5);">
-            وصول سريع
-        </MudText>
+        <div class="d-flex align-center mb-2 px-2">
+            <MudIcon Icon="@Icons.Material.Filled.FlashOn" Size="Size.Small" Style="color: rgba(255, 255, 255, 0.5);" Class="me-2" />
+            <MudText Typo="Typo.caption" Style="color: rgba(255, 255, 255, 0.7); font-weight: bold;">
+                وصول سريع
+            </MudText>
+        </div>
 
-        <div class="d-flex flex-wrap justify-center px-3 gap-2">
-            <MudTooltip Text="حركة صرف جديدة">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Color="Color.Secondary" Variant="Variant.Outlined" Class="quick-action-btn"
+        <div class="d-flex flex-wrap justify-center px-1 gap-2">
+            <MudTooltip Text="حركة صرف جديدة" Arrow="true" Placement="Placement.Top">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Variant="Variant.Outlined" Class="quick-action-btn"
                                OnClick="@(() => Navigation.NavigateTo("/transactions"))" />
             </MudTooltip>
 
-            <MudTooltip Text="استيراد إكسيل">
-                <MudIconButton Icon="@Icons.Material.Filled.Upload" Size="Size.Small" Color="Color.Secondary" Variant="Variant.Outlined" Class="quick-action-btn"
+            <MudTooltip Text="استيراد إكسيل" Arrow="true" Placement="Placement.Top">
+                <MudIconButton Icon="@Icons.Material.Filled.Upload" Size="Size.Small" Variant="Variant.Outlined" Class="quick-action-btn"
                                OnClick="@(() => Navigation.NavigateTo("/assets/import"))" />
             </MudTooltip>
 
-            <MudTooltip Text="تقرير الجرد">
-                <MudIconButton Icon="@Icons.Material.Filled.Summarize" Size="Size.Small" Color="Color.Secondary" Variant="Variant.Outlined" Class="quick-action-btn"
+            <MudTooltip Text="تقرير الجرد" Arrow="true" Placement="Placement.Top">
+                <MudIconButton Icon="@Icons.Material.Filled.Summarize" Size="Size.Small" Variant="Variant.Outlined" Class="quick-action-btn"
                                OnClick="@(() => Navigation.NavigateTo("/reports/inventory"))" />
             </MudTooltip>
         </div>
     </div>
+
+    <MudDivider Class="mt-4 mb-2" Style="border-color: rgba(197, 160, 89, 0.1);" />
+
+    <div class="footer-credits d-flex flex-column align-center justify-center pb-4 pt-2">
+        <MudText Typo="Typo.caption" Style="color: rgba(255, 255, 255, 0.4); font-size: 0.65rem; letter-spacing: 1px;">
+            تصميم وتطوير
+        </MudText>
+        <div class="developer-badge mt-1">
+            <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Class="me-1" Style="font-size: 0.8rem;" />
+            <MudText Typo="Typo.caption" Style="font-weight: 800; font-size: 0.75rem;">
+                ملازم / عبدالرحمن الحلو
+            </MudText>
+        </div>
+    </div>
+
 </MudNavMenu>

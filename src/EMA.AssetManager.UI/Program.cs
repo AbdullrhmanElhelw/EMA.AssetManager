@@ -20,6 +20,8 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<QrCodeService>();
 builder.Services.AddScoped<ExcelImportService>();
 
