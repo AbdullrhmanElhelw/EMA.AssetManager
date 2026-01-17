@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EMA.AssetManager.Domain.Data.Migrations
+namespace EMA.AssetManager.Domain.Migrations
 {
     [DbContext(typeof(AssertManagerDbContext))]
-    [Migration("20260115203004_CreateAssetsTable")]
-    partial class CreateAssetsTable
+    [Migration("20260117131240_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,6 +90,60 @@ namespace EMA.AssetManager.Domain.Data.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("Assets");
+                });
+
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.AssetTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipientName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("AssetTransactions");
                 });
 
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Category", b =>
@@ -190,6 +244,59 @@ namespace EMA.AssetManager.Domain.Data.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.SystemSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BranchName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("EnableEmailNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogoPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LowStockThreshold")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemSettings");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Warehouse", b =>
                 {
                     b.Property<Guid>("Id")
@@ -258,6 +365,23 @@ namespace EMA.AssetManager.Domain.Data.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.AssetTransaction", b =>
+                {
+                    b.HasOne("EMA.AssetManager.Domain.Entities.Asset", "Asset")
+                        .WithMany("AssetTransactions")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EMA.AssetManager.Domain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId");
+
+                    b.Navigation("Asset");
+
+                    b.Navigation("Warehouse");
+                });
+
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Item", b =>
                 {
                     b.HasOne("EMA.AssetManager.Domain.Entities.Category", "Category")
@@ -267,6 +391,11 @@ namespace EMA.AssetManager.Domain.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Asset", b =>
+                {
+                    b.Navigation("AssetTransactions");
                 });
 
             modelBuilder.Entity("EMA.AssetManager.Domain.Entities.Category", b =>

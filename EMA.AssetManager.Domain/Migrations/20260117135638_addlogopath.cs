@@ -2,28 +2,27 @@
 
 #nullable disable
 
-namespace EMA.AssetManager.Domain.Data.Migrations
+namespace EMA.AssetManager.Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class EditItemTable : Migration
+    public partial class addlogopath : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsActive",
-                table: "Items",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.AddColumn<string>(
+                name: "LogoPath",
+                table: "SystemSettings",
+                type: "nvarchar(max)",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsActive",
-                table: "Items");
+                name: "LogoPath",
+                table: "SystemSettings");
         }
     }
 }

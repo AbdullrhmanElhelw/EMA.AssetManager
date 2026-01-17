@@ -1,20 +1,56 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using EMA.AssetManager.Services.Interfaces;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace EMA.AssetManager.UI.Components.Layout;
 
-public partial class MainLayout : LayoutComponentBase
+public partial class MainLayout : LayoutComponentBase, IDisposable
 {
-    [Inject]
-    private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ISettingsService SettingsService { get; set; } = default!;
 
     private bool _drawerOpen = true;
-    private bool _isRTL = true;
+    private bool _isRTL = true; // عشان العربي
     private MudTheme _currentTheme = new();
 
-    protected override void OnInitialized()
+    // متغيرات العرض (بنحط قيم مبدئية عشان الشكل ميبقاش فاضي لحد ما الداتابيز تحمل)
+    private string _companyName = "جاري التحميل...";
+    private string _branchName = "";
+    private string _logoPath = "/logo.png"; // اللوجو الافتراضي
+
+    protected override async Task OnInitializedAsync()
     {
-        _currentTheme = CreateModernMilitaryTheme();
+        // 1. تحميل الإعدادات
+        await LoadSettingsAsync();
+
+        // 2. الاشتراك في حدث التغيير (عشان التحديث اللحظي)
+        SettingsService.OnChange += HandleSettingsChange;
+    }
+
+    private async Task LoadSettingsAsync()
+    {
+        var settings = await SettingsService.GetSettingsAsync();
+
+        _companyName = settings.CompanyName;
+        _branchName = settings.BranchName;
+
+        // التحقق من اللوجو
+        _logoPath = string.IsNullOrEmpty(settings.LogoPath) ? "/logo.png" : settings.LogoPath;
+
+        // بناء الثيم بالألوان الجديدة
+        _currentTheme = CreateDynamicTheme(
+            settings.PrimaryColor,
+            settings.SecondaryColor,
+            settings.DrawerBackgroundColor,
+            settings.DrawerTextColor
+        );
+    }
+
+    // الدالة دي بتشتغل لما السيرفس تقول "يا جماعة فيه تغيير حصل"
+    private async void HandleSettingsChange()
+    {
+        await LoadSettingsAsync();
+        await InvokeAsync(StateHasChanged); // أجبر الصفحة تعمل Refresh
     }
 
     private void DrawerToggle()
@@ -22,48 +58,47 @@ public partial class MainLayout : LayoutComponentBase
         _drawerOpen = !_drawerOpen;
     }
 
-    private MudTheme CreateModernMilitaryTheme()
+    // دالة بناء الثيم (الطريقة الآمنة 100%)
+    private MudTheme CreateDynamicTheme(string primary, string secondary, string drawerBg, string drawerText)
     {
-        var theme = new MudTheme()
+        // 1. (Defensive Coding) لو القيم جاية فاضية حط الافتراضي
+        if (string.IsNullOrWhiteSpace(primary)) primary = "#1E3A2F";
+        if (string.IsNullOrWhiteSpace(secondary)) secondary = "#C5A059";
+        if (string.IsNullOrWhiteSpace(drawerBg)) drawerBg = "#1A2B26";
+        if (string.IsNullOrWhiteSpace(drawerText)) drawerText = "#FFFFFF";
+
+        // 2. إنشاء كائن ثيم جديد (هو بيملا القيم الافتراضية لوحده)
+        var theme = new MudTheme();
+
+        // 3. تعديل الألوان
+        theme.PaletteLight = new PaletteLight()
         {
-            PaletteLight = new PaletteLight()
-            {
-                Primary = "#1E3A2F",          // أخضر عسكري داكن
-                Secondary = "#C5A059",        // ذهبي عسكري
-                Tertiary = "#2D4A3E",         // أخضر متوسط
-                Background = "#F8FAF7",       // خلفية فاتحة ناعمة
-                Surface = "#FFFFFF",          // أسطح بيضاء
+            Primary = primary,
+            Secondary = secondary,
+            AppbarBackground = primary,
 
-                DrawerBackground = "#1A2B26", // خلفية داكنة للدراور
-                DrawerText = "#FFFFFF",       // نص فاتح
-                DrawerIcon = "#C5A059",       // أيقونات ذهبية
+            // تخصيص ألوان القائمة الجانبية
+            DrawerBackground = drawerBg,
+            DrawerText = drawerText,
+            DrawerIcon = secondary, // الأيقونات تاخد اللون الثانوي للتمييز
 
-                AppbarBackground = "#1E3A2F", // AppBar داكن
-                AppbarText = "#FFFFFF",       // نص أبيض
-
-                TextPrimary = "#1E3A2F",      // نص رئيسي داكن
-                TextSecondary = "#5D7A6F",    // نص ثانوي
-
-                Divider = "#E0E6E3",          // فواصل ناعمة
-
-                GrayLight = "#F5F7F6",
-                GrayDefault = "#E0E6E3",
-                GrayDark = "#C8D1CE"
-            },
-
-            PaletteDark = new PaletteDark()
-            {
-                Primary = "#2D9D78",
-                Secondary = "#C5A059",
-                Background = "#121A17",
-                Surface = "#1A2420",
-                DrawerBackground = "#15201C"
-            }
+            // ثوابت لباقي النظام
+            Tertiary = "#2D4A3E",
+            Background = "#F4F6F5", // لون خلفية الصفحة رمادي فاتح جداً ومريح
+            Surface = "#FFFFFF",
+            TextPrimary = "#0D1F18"
         };
 
-        // إعداد الخط
-        theme.Typography.Default.FontFamily = new[] { "Cairo", "Inter", "sans-serif" };
+        // 4. تعديل الخط (بدون استخدام new Default لتجنب المشاكل)
+        // بنعدل على الكائن الموجود بالفعل جوه الثيم
+        theme.Typography.Default.FontFamily = new[] { "Cairo", "sans-serif" };
 
         return theme;
+    }
+
+    public void Dispose()
+    {
+        // إلغاء الاشتراك لمنع تسريب الذاكرة (Memory Leak)
+        SettingsService.OnChange -= HandleSettingsChange;
     }
 }

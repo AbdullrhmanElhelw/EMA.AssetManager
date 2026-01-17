@@ -18,7 +18,7 @@ public static class DependencyInjectionSetup
             throw new ArgumentNullException("Connection string not found");
         }
 
-        services.AddDbContext<AssertManagerDbContext>(options =>
+        services.AddDbContextFactory<AssertManagerDbContext>(options =>
             options.UseSqlServer(connectionStringValue, sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null);

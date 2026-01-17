@@ -3,7 +3,7 @@ using EMA.AssetManager.Domain.Enums;
 using EMA.AssetManager.Services.Dtos.Dashboard;
 using Microsoft.EntityFrameworkCore;
 
-namespace EMA.AssetManager.Services.Services;
+namespace EMA.AssetManager.Services.Interfaces;
 
 public class DashboardService : IDashboardService
 {

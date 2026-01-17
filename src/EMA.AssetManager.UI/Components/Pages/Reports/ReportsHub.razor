@@ -1,0 +1,45 @@
+﻿@page "/reports"
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <MudText Typo="Typo.h4" Class="mb-6 font-bold text-center" Color="Color.Primary">مركز التقارير والإحصائيات</MudText>
+    <MudText Typo="Typo.subtitle1" Class="mb-8 text-center" Color="Color.Secondary">اختر نوع التقرير المطلوب للعرض والطباعة</MudText>
+
+    <MudGrid Class="justify-center">
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard Elevation="4" Class="report-card" @onclick="@(() => Navigation.NavigateTo("/reports/inventory"))">
+                <MudCardContent Class="d-flex flex-column align-center pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.Inventory2" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+                    <MudText Typo="Typo.h6" Class="font-bold">جرد العهدة والمخزون</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2 text-center text-muted">عرض شامل لجميع الأصناف والكميات المتاحة والمصروفة.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard Elevation="4" Class="report-card disabled-card">
+                <MudCardContent Class="d-flex flex-column align-center pa-6">
+                    <MudIcon Icon="@Icons.Material.Filled.History" Size="Size.Large" Color="Color.Default" Class="mb-4" />
+                    <MudText Typo="Typo.h6">سجل الحركات (قريباً)</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2 text-center text-muted">تتبع حركات الصرف والإرجاع خلال فترة زمنية.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    .report-card {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e0e0e0;
+    }
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-color: var(--mud-palette-primary);
+    }
+    .font-bold { font-weight: 700; }
+    .text-muted { color: gray; }
+    .disabled-card { opacity: 0.6; pointer-events: none; }
+</style>

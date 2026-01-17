@@ -1,0 +1,125 @@
+﻿@page "/settings"
+@using EMA.AssetManager.Domain.Entities
+@using EMA.AssetManager.Services.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+@inject ISettingsService SettingsService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-6 font-bold" Color="Color.Primary">⚙️ إعدادات النظام</MudText>
+
+    @if (_settings == null)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    }
+    else
+    {
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+
+            <MudTabPanel Text="الهوية واللوجو" Icon="@Icons.Material.Filled.Business">
+                <MudGrid>
+                    <MudItem xs="12" md="4" Class="d-flex justify-center flex-column align-center">
+                        <MudPaper Elevation="4" Class="logo-preview-box pa-4 d-flex align-center justify-center mb-3">
+                            @if (string.IsNullOrEmpty(_settings.LogoPath))
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.ImageNotSupported" Size="Size.Large" Color="Color.Default" />
+                            }
+                            else
+                            {
+                                <img src="@_settings.LogoPath" class="logo-animation" alt="Current Logo" />
+                            }
+                        </MudPaper>
+
+                        <MudFileUpload T="IBrowserFile" FilesChanged="UploadLogo">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    تغيير الشعار
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+                        <MudText Typo="Typo.caption" Class="mt-2 text-muted">يفضل صورة PNG شفافة</MudText>
+                    </MudItem>
+
+                    <MudItem xs="12" md="8">
+                        <MudGrid>
+                            <MudItem xs="12"><MudText Typo="Typo.h6">بيانات المؤسسة</MudText></MudItem>
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="_settings.CompanyName" Label="اسم المؤسسة" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Domain" />
+                            </MudItem>
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="_settings.BranchName" Label="اسم الفرع" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Place" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            <MudTabPanel Text="المظهر والألوان" Icon="@Icons.Material.Filled.Palette">
+                <MudGrid>
+                    <MudItem xs="12"><MudText Typo="Typo.h6">تخصيص الألوان</MudText></MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudText Class="mb-1">اللون الأساسي (Header)</MudText>
+                        <MudColorPicker @bind-Text="_settings.PrimaryColor" Style="@($"color: {_settings.PrimaryColor}; font-weight:bold;")" Label="Primary" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Class="mb-1">اللون الثانوي (Buttons)</MudText>
+                        <MudColorPicker @bind-Text="_settings.SecondaryColor" Style="@($"color: {_settings.SecondaryColor}; font-weight:bold;")" Label="Secondary" />
+                    </MudItem>
+
+                    <MudItem xs="12"><MudDivider Class="my-4" /></MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudText Class="mb-1">خلفية القائمة الجانبية</MudText>
+                        <MudColorPicker @bind-Text="_settings.DrawerBackgroundColor" Style="@($"color: {_settings.DrawerBackgroundColor}; font-weight:bold;")" Label="Drawer BG" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Class="mb-1">لون خط القائمة الجانبية</MudText>
+                        <MudColorPicker @bind-Text="_settings.DrawerTextColor" Style="@($"color: {_settings.DrawerTextColor}; font-weight:bold;")" Label="Drawer Text" />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            <MudTabPanel Text="المخزون" Icon="@Icons.Material.Filled.Inventory">
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField @bind-Value="_settings.LowStockThreshold" Label="حد التنبيه للنواقص" Variant="Variant.Outlined" Min="0" Max="100" />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+        </MudTabs>
+
+        <div class="d-flex justify-end mt-6">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" StartIcon="@Icons.Material.Filled.Save" OnClick="SaveSettings">حفظ وتطبيق التغييرات</MudButton>
+        </div>
+    }
+</MudContainer>
+
+@code {
+    private SystemSetting? _settings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settings = await SettingsService.GetSettingsAsync();
+    }
+
+    private async Task SaveSettings()
+    {
+        if (_settings != null)
+        {
+            await SettingsService.UpdateSettingsAsync(_settings);
+            Snackbar.Add("تم حفظ الإعدادات بنجاح", Severity.Success);
+        }
+    }
+
+    private async Task UploadLogo(IBrowserFile file)
+    {
+        if (file != null)
+        {
+            var newPath = await SettingsService.UploadLogoAsync(file);
+            _settings!.LogoPath = newPath;
+            Snackbar.Add("تم رفع الشعار، اضغط حفظ للتثبيت", Severity.Info);
+        }
+    }
+}
+

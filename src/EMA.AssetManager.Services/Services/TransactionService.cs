@@ -6,7 +6,7 @@ using EMA.AssetManager.Services.Dtos.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace EMA.AssetManager.Services.Services;
+namespace EMA.AssetManager.Services.Interfaces;
 
 public class TransactionService : ITransactionService
 {

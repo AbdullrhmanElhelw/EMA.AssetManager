@@ -18,6 +18,7 @@ public class AssertManagerDbContext : DbContext
     public DbSet<Asset> Assets => Set<Asset>();
 
     public DbSet<AssetTransaction> AssetTransactions => Set<AssetTransaction>();
+    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

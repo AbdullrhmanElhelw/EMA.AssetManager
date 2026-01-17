@@ -503,3 +503,57 @@ html, body {
         padding: 0 !important;
     }
 }
+
+.military-badge-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%; /* يخليها دائرة */
+    background: linear-gradient(145deg, #ffffff, #e6e6e6); /* تدرج لوني يعطي تجسيم */
+    /* الحواف الذهبية والظل الـ 3D */
+    border: 4px solid var(--mud-palette-secondary);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4), /* ظل خارجي كبير */
+    inset 0 -5px 10px rgba(0,0,0,0.1); /* ظل داخلي للعمق */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* حركة مرنة */
+    cursor: pointer;
+}
+
+    /* تأثير عند مرور الماوس (تكبير ودوران بسيط) */
+    .military-badge-container:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        border-color: #ffd700; /* يخلي الدهبي يلمع أكتر */
+    }
+
+/* 2. الصورة نفسها */
+.military-badge-img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); /* ظل للصقر نفسه عشان يبرز عن الخلفية البيضاء */
+    z-index: 2;
+}
+
+/* 3. تأثير اللمعة (Shine) بيمر فوق اللوجو */
+.shine-effect {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.military-badge-container:hover .shine-effect {
+    left: 150%; /* يحرك اللمعة من الشمال لليمين */
+    transition: 0.7s ease-in-out;
+}

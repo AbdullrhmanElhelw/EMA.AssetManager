@@ -7,81 +7,49 @@ public partial class NavMenu : ComponentBase
     [Parameter]
     public bool IsDrawerOpen { get; set; } = true;
 
-    // الأقسام تكون مقفولة افتراضياً
-    private bool _isDashboardExpanded = false;
-    private bool _isManagementExpanded = false;
-    private bool _isReportsExpanded = false;
+    // حالة فتح القوائم (الرئيسية مفتوحة افتراضياً)
+    private bool _isDashboardExpanded = true;
+    private bool _isDefinitionsExpanded = false; // قسم التعريفات
+    private bool _isOperationsExpanded = false;  // قسم العمليات
+    private bool _isReportsExpanded = false;     // قسم التقارير
 
+    // أنماط الأيقونات (حركة الدوران للسهم)
     private string DashboardIconStyle => $"transform: {(_isDashboardExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
-    private string ManagementIconStyle => $"transform: {(_isManagementExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
+    private string DefinitionsIconStyle => $"transform: {(_isDefinitionsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
+    private string OperationsIconStyle => $"transform: {(_isOperationsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
     private string ReportsIconStyle => $"transform: {(_isReportsExpanded ? "rotate(0deg)" : "rotate(-90deg)")}; transition: transform 0.3s;";
 
     private void ToggleDashboardSection()
     {
         _isDashboardExpanded = !_isDashboardExpanded;
-
-        // إغلاق الأقسام الأخرى
-        if (_isDashboardExpanded)
-        {
-            _isManagementExpanded = false;
-            _isReportsExpanded = false;
-        }
-
-        StateHasChanged();
+        if (_isDashboardExpanded) CollapseOtherSections("dashboard");
     }
 
-    private void ToggleManagementSection()
+    private void ToggleDefinitionsSection()
     {
-        _isManagementExpanded = !_isManagementExpanded;
+        _isDefinitionsExpanded = !_isDefinitionsExpanded;
+        if (_isDefinitionsExpanded) CollapseOtherSections("definitions");
+    }
 
-        // إغلاق الأقسام الأخرى
-        if (_isManagementExpanded)
-        {
-            _isDashboardExpanded = false;
-            _isReportsExpanded = false;
-        }
-
-        StateHasChanged();
+    private void ToggleOperationsSection()
+    {
+        _isOperationsExpanded = !_isOperationsExpanded;
+        if (_isOperationsExpanded) CollapseOtherSections("operations");
     }
 
     private void ToggleReportsSection()
     {
         _isReportsExpanded = !_isReportsExpanded;
-
-        // إغلاق الأقسام الأخرى
-        if (_isReportsExpanded)
-        {
-            _isDashboardExpanded = false;
-            _isManagementExpanded = false;
-        }
-
-        StateHasChanged();
+        if (_isReportsExpanded) CollapseOtherSections("reports");
     }
 
-    // دالة لفتح قسم معين من الخارج (مثلاً من الصفحة الحالية)
-    public void ExpandSection(string sectionName)
+    // دالة مساعدة لغلق باقي الأقسام عند فتح قسم جديد (للحفاظ على نظافة القائمة)
+    private void CollapseOtherSections(string currentSection)
     {
-        // إغلاق جميع الأقسام أولاً
-        _isDashboardExpanded = false;
-        _isManagementExpanded = false;
-        _isReportsExpanded = false;
-
-        // فتح القسم المطلوب
-        switch (sectionName.ToLower())
-        {
-            case "dashboard":
-            case "الرئيسية":
-                _isDashboardExpanded = true;
-                break;
-            case "management":
-            case "إدارة العهدة":
-                _isManagementExpanded = true;
-                break;
-            case "reports":
-            case "التقارير والإدارة":
-                _isReportsExpanded = true;
-                break;
-        }
+        if (currentSection != "dashboard") _isDashboardExpanded = false;
+        if (currentSection != "definitions") _isDefinitionsExpanded = false;
+        if (currentSection != "operations") _isOperationsExpanded = false;
+        if (currentSection != "reports") _isReportsExpanded = false;
 
         StateHasChanged();
     }

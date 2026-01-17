@@ -1,0 +1,208 @@
+﻿@page "/reports/inventory"
+@using EMA.AssetManager.Services.Dtos.Reports
+@using EMA.AssetManager.Services.Interfaces
+@using EMA.AssetManager.Domain.Entities
+@inject IReportService ReportService
+@inject ISettingsService SettingsService
+@inject IJSRuntime JS
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <div class="d-flex justify-space-between align-center mb-4 no-print">
+        <MudButton StartIcon="@Icons.Material.Filled.ArrowForward" Href="/reports" Variant="Variant.Text">عودة للتقارير</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Print"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="PrintReport">طباعة التقرير</MudButton>
+    </div>
+
+    <div id="printableArea" class="pa-8 bg-white report-container">
+
+        <div class="report-header mb-6">
+            <div class="d-flex justify-space-between align-center">
+
+                <div class="text-right">
+                    <MudText Typo="Typo.h5" Class="font-bold" Style="@($"color: {_settings.PrimaryColor};")">
+                        @_settings.CompanyName
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1" Class="mt-1 font-bold">@_settings.BranchName</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-1 text-muted">تاريخ التقرير: @DateTime.Now.ToString("yyyy/MM/dd - HH:mm")</MudText>
+                </div>
+
+                <div class="report-logo-container">
+                    @if (string.IsNullOrEmpty(_settings.LogoPath))
+                    {
+                        <img src="/logo.png" alt="Logo" class="report-logo" />
+                    }
+                    else
+                    {
+                        <img src="@_settings.LogoPath" alt="Company Logo" class="report-logo" />
+                    }
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <MudText Typo="Typo.h4" Class="report-title" Style="@($"color: {_settings.PrimaryColor};")">تقرير موقف العهدة والمخزون</MudText>
+                <MudDivider Class="my-3 border-2" />
+            </div>
+        </div>
+
+        <MudSimpleTable Style="overflow-x: auto;" Bordered="true" Dense="true" Hover="false" Striped="true" Class="custom-table">
+            <thead>
+                <tr class="table-header">
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">الفئة / التصنيف</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">إجمالي الأصناف</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">إجمالي العدد</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">متاح بالمخزن</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">مصروف (عهدة)</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">بالصيانة</th>
+                    <th style="@($"background-color: {_settings.PrimaryColor} !important; color: white !important;")">كهنة / تالف</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _reportData)
+                {
+                    <tr>
+                        <td class="font-bold">@item.CategoryName</td>
+                        <td>@item.TotalItemsCount</td>
+                        <td>@item.TotalAssetsCount</td>
+                        <td class="text-success font-bold">@item.AvailableCount</td>
+                        <td class="text-info">@item.AssignedCount</td>
+                        <td class="text-warning">@item.MaintenanceCount</td>
+                        <td class="text-danger">@item.DamagedCount</td>
+                    </tr>
+                }
+                <tr class="table-footer">
+                    <td>الإجمالي الكلي</td>
+                    <td>@_reportData.Sum(x => x.TotalItemsCount)</td>
+                    <td>@_reportData.Sum(x => x.TotalAssetsCount)</td>
+                    <td>@_reportData.Sum(x => x.AvailableCount)</td>
+                    <td>@_reportData.Sum(x => x.AssignedCount)</td>
+                    <td>@_reportData.Sum(x => x.MaintenanceCount)</td>
+                    <td>@_reportData.Sum(x => x.DamagedCount)</td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+
+        <div class="report-footer mt-16 d-flex justify-space-around">
+            <div class="signature-box text-center">
+                <MudText Typo="Typo.subtitle2">أمين العهدة</MudText>
+                <div class="signature-line"></div>
+                <MudText Typo="Typo.caption">الاسم / التوقيع</MudText>
+            </div>
+            <div class="signature-box text-center">
+                <MudText Typo="Typo.subtitle2">رئيس الفرع</MudText>
+                <div class="signature-line"></div>
+                <MudText Typo="Typo.caption">الاسم / التوقيع</MudText>
+            </div>
+            <div class="signature-box text-center">
+                <MudText Typo="Typo.subtitle2">قائد الوحدة / المدير</MudText>
+                <div class="signature-line"></div>
+                <MudText Typo="Typo.caption">الاعتماد</MudText>
+            </div>
+        </div>
+    </div>
+</MudContainer>
+
+@code {
+    private List<InventoryReportDto> _reportData = new();
+    private SystemSetting _settings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // تحميل الإعدادات لضبط اللوجو والأسماء
+        _settings = await SettingsService.GetSettingsAsync();
+
+        // تحميل بيانات التقرير
+        _reportData = await ReportService.GetInventorySummaryAsync();
+    }
+
+    private async Task PrintReport()
+    {
+        await JS.InvokeVoidAsync("printDiv", "printableArea");
+    }
+}
+
+<style>
+    .report-container {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        min-height: 297mm; /* ارتفاع A4 تقريبي */
+    }
+
+    .font-bold {
+        font-weight: 800;
+    }
+
+    /* تنسيق اللوجو في التقرير */
+    .report-logo-container {
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .report-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* أهم سطر: يمنع مط الصورة */
+    }
+
+    .border-2 {
+        border-width: 2px;
+        border-color: #333;
+    }
+
+    /* تنسيق الجدول */
+    .table-header th {
+        font-weight: bold !important;
+        border: 1px solid #ccc !important;
+        text-align: center !important;
+        -webkit-print-color-adjust: exact !important; /* لطباعة ألوان الخلفية */
+        print-color-adjust: exact !important;
+    }
+
+    .table-footer td {
+        background-color: #e0e0e0 !important;
+        font-weight: bold;
+        border-top: 2px solid #000;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    .custom-table td {
+        text-align: center;
+        border: 1px solid #eee;
+    }
+
+    .signature-line {
+        margin-top: 50px;
+        border-bottom: 1px dashed #000;
+        width: 180px;
+        margin-bottom: 8px;
+    }
+
+    /* ميديا كويري للطباعة */
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .mud-layout, .mud-main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .report-container {
+            border: none;
+        }
+        /* إجبار المتصفح على طباعة الألوان والخلفيات */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>

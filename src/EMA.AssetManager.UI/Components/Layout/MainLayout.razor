@@ -7,133 +7,112 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <!-- AppBar عصري -->
     <MudAppBar Elevation="1" Color="Color.Primary" Dense="true" Class="modern-app-bar">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       OnClick="@DrawerToggle"
-                       Class="menu-btn" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
 
-        <div class="d-flex align-center">
+        <div class="d-flex align-center ms-3">
             <div class="app-logo-container me-3">
-                <img src="/logo.png" alt="شعار الأكاديمية" class="app-bar-logo" />
+                <img src="@_logoPath" alt="Logo" class="app-bar-logo"
+                     style="height: 40px; width: auto; max-width: 150px; object-fit: contain;" />
             </div>
 
             <div class="d-flex flex-column">
-                <MudText Typo="Typo.subtitle2" Class="app-title" Style="line-height:1.2;">
-                    الأكاديمية العسكرية المصرية
-                </MudText>
-                <MudText Typo="Typo.caption" Class="app-subtitle">
-                    نظام إدارة الأصول
-                </MudText>
+                <MudText Typo="Typo.subtitle2" Style="font-weight:bold; font-size: 1rem; line-height: 1.2;">@_companyName</MudText>
+                <MudText Typo="Typo.caption" Style="opacity:0.9;">@_branchName</MudText>
             </div>
         </div>
 
         <MudSpacer />
 
-        <!-- أيقونات الإجراءات -->
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="action-icons">
-            <MudIconButton Icon="@Icons.Material.Filled.Notifications"
-                           Color="Color.Inherit"
-                           Size="Size.Small"
-                           Class="action-btn" />
-
-            <MudIconButton Icon="@Icons.Material.Filled.Search"
-                           Color="Color.Inherit"
-                           Size="Size.Small"
-                           Class="action-btn" />
-
-            <MudMenu Direction="Direction.Left" OffsetY="true" Class="user-menu">
-                <ActivatorContent>
-                    <MudButton Variant="Variant.Text"
-                               Color="Color.Inherit"
-                               EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                               Class="user-profile-btn">
-                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                            <MudAvatar Color="Color.Secondary"
-                                       Variant="Variant.Filled"
-                                       Size="Size.Small"
-                                       Class="user-avatar">
-                                <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
-                            </MudAvatar>
-                            <div class="d-none d-md-flex flex-column text-start">
-                                <MudText Typo="Typo.body2" Class="user-name">مدير النظام</MudText>
-                                <MudText Typo="Typo.caption" Class="user-role">مشرف عام</MudText>
-                            </div>
-                        </MudStack>
-                    </MudButton>
-                </ActivatorContent>
-                <ChildContent>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Settings">الإعدادات</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.ExitToApp">تسجيل الخروج</MudMenuItem>
-                </ChildContent>
-            </MudMenu>
-        </MudStack>
+        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
+        <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" OnClick='() => Navigation.NavigateTo("/settings")' />
     </MudAppBar>
 
-    <!-- Drawer عصري - سيكون مفتوحاً افتراضياً -->
-    <MudDrawer @bind-Open="_drawerOpen"
-               ClipMode="DrawerClipMode.Always"
-               Elevation="0"
-               Width="280px"
-               Anchor="Anchor.Right"
-               Variant="@DrawerVariant.Responsive"
-               Class="modern-drawer">
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="0" Width="280px" Anchor="Anchor.Right">
 
-        <div class="drawer-content">
-            <!-- رأس الدراور -->
-            <div class="drawer-header">
-                <div class="logo-container">
-                    <img src="/logo.png" alt="شعار الأكاديمية" class="drawer-logo" />
-                    <div class="logo-badge">
-                        <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" />
-                    </div>
-                </div>
+        <div class="pa-6 d-flex justify-center flex-column align-center">
 
-                <div class="academy-info">
-                    <MudText Typo="Typo.h6" Class="academy-name">
-                        الأكاديمية العسكرية
-                    </MudText>
-                    <MudText Typo="Typo.body2" Class="academy-motto">
-                        العلم ∙ الشرف ∙ الوطن
-                    </MudText>
-                </div>
+            <div class="military-badge-container">
+                <img src="@_logoPath" class="military-badge-img" />
+                <div class="shine-effect"></div>
             </div>
 
-            <!-- القائمة الجانبية -->
-            <div class="nav-container">
-                <NavMenu />
-            </div>
-
-            <!-- تذييل الدراور -->
-            <div class="drawer-footer">
-                <div class="version-info">
-                    <MudChip T="string" Variant="Variant.Outlined" Size="Size.Small" Color="Color.Secondary">
-                        v2.1.0
-                    </MudChip>
-                </div>
-
-                <div class="designer-info">
-                    <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Small" Class="me-1" />
-                    <MudText Typo="Typo.caption" Class="designer-text">
-                        تصميم وبرمجة: ملازم أول / عبدالرحمن الحلو
-                    </MudText>
-                </div>
-
-                <MudText Typo="Typo.caption" Class="copyright">
-                    © @DateTime.Now.Year جميع الحقوق محفوظة
+            <div class="mt-4 text-center">
+                <MudText Typo="Typo.h6" Align="Align.Center" Style="@($"color: {_currentTheme.PaletteLight.DrawerText}; font-weight: 800; letter-spacing: 0.5px;")">
+                    @_companyName
+                </MudText>
+                <MudText Typo="Typo.caption" Align="Align.Center" Style="@($"color: {_currentTheme.PaletteLight.DrawerText}; opacity: 0.8;")">
+                    @_branchName
                 </MudText>
             </div>
         </div>
+
+        <MudDivider Class="my-2" Style="opacity: 0.2;" />
+
+        <NavMenu />
     </MudDrawer>
 
-    <!-- المحتوى الرئيسي مع تعديل الهامش ليكون متجاوباً مع الدراور المفتوح -->
-    <MudMainContent Class="modern-main-content">
-        <div class="content-wrapper @(_drawerOpen ? "drawer-open" : "drawer-closed")">
-            <MudPaper Elevation="0" Class="content-container">
-                @Body
-            </MudPaper>
+    <MudMainContent>
+        <div class="pa-6">
+            @Body
         </div>
     </MudMainContent>
 </MudLayout>
+
+<style>
+    /* 1. حاوية اللوجو (جسم الميدالية) */
+    .military-badge-container {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%; /* دائري */
+        background: linear-gradient(145deg, #ffffff, #e6e6e6); /* تدرج لوني أبيض فضي */
+        /* الحواف الذهبية والظل الـ 3D */
+        border: 4px solid var(--mud-palette-secondary);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5), /* ظل خارجي قوي */
+        inset 0 -5px 10px rgba(0,0,0,0.1); /* عمق داخلي */
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+        /* تأثير عند مرور الماوس */
+        .military-badge-container:hover {
+            transform: scale(1.05) rotate(3deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border-color: #ffd700; /* تلميع الإطار الذهبي */
+        }
+
+    /* 2. الصورة نفسها (الصقر) */
+    .military-badge-img {
+        width: 80%; /* حجم الصورة جوه الدايرة */
+        height: 80%;
+        object-fit: contain; /* عشان متمطش */
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); /* ظل للصقر نفسه */
+        z-index: 2;
+    }
+
+    /* 3. تأثير اللمعة (Shine Effect) */
+    .shine-effect {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+        transform: skewX(-25deg);
+        z-index: 3;
+        pointer-events: none;
+        transition: 0.5s;
+    }
+
+    .military-badge-container:hover .shine-effect {
+        left: 150%;
+        transition: 0.7s ease-in-out;
+    }
+</style>

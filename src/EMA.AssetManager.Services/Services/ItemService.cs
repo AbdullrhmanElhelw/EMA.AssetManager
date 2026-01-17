@@ -1,10 +1,9 @@
 ﻿using EMA.AssetManager.Domain.Data;
 using EMA.AssetManager.Domain.Entities;
 using EMA.AssetManager.Services.Dtos.Items;
-using EMA.AssetManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace EMA.AssetManager.Services.Services;
+namespace EMA.AssetManager.Services.Interfaces;
 
 public class ItemService : IItemService
 {

@@ -4,7 +4,7 @@ using EMA.AssetManager.Services.Dtos.Categories.Create;
 using EMA.AssetManager.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace EMA.AssetManager.Services.Services
+namespace EMA.AssetManager.Services.Interfaces
 {
     public class CategoryService : ICategoryService
     {

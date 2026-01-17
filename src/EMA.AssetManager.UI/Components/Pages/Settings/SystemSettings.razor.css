@@ -1,0 +1,46 @@
+﻿<style >
+/* تنسيق صندوق اللوجو */
+.logo-preview-box {
+    width: 180px; /* عرض ثابت للصندوق */
+    height: 180px; /* ارتفاع ثابت للصندوق */
+    border-radius: 50%; /* شكل دائري */
+    border: 3px dashed var(--mud-palette-primary);
+    background-color: #ffffff;
+    overflow: hidden; /* أي حاجة تخرج بره الدايرة تختفي */
+    display: flex; /* عشان نوسطن الصورة */
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.logo-preview-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    border-style: solid;
+}
+
+/* تنسيق الصورة نفسها جوه الصندوق */
+.logo-animation {
+    width: 100%; /* تاخد عرض الصندوق */
+    height: 100%; /* تاخد ارتفاع الصندوق */
+    object-fit: contain; /* سحر!! بيخلي الصورة تصغر عشان تبان كاملة جوه المربع */
+    padding: 10px; /* مسافة داخلية عشان الحواف */
+    animation: floatLogo 3s ease-in-out infinite;
+}
+
+@@keyframes floatLogo {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+</style >
